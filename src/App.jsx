@@ -57,16 +57,21 @@ const SUGGESTIONS = [
 
 /* ─── CHAT PANEL ────────────────────────────────────────────────── */
 function Chat({ isOpen, onClose }) {
-  const [messages, setMessages] = useState([
-    { role: "assistant", content: "Hi! I'm Krishiv's portfolio AI. Ask me anything about his work, skills, or background." },
-  ]);
+  const INITIAL_MESSAGE = [{ role: "assistant", content: "Hi! I'm Krishiv's portfolio AI. Ask me anything about his work, skills, or background." }];
+  const [messages, setMessages] = useState(INITIAL_MESSAGE);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const bottomRef = useRef(null);
   const inputRef = useRef(null);
 
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages, loading]);
-  useEffect(() => { if (isOpen) setTimeout(() => inputRef.current?.focus(), 120); }, [isOpen]);
+  useEffect(() => {
+    if (isOpen) {
+      setMessages(INITIAL_MESSAGE);
+      setInput("");
+      setTimeout(() => inputRef.current?.focus(), 120);
+    }
+  }, [isOpen]);
 
   const send = async (text) => {
     const msg = (text ?? input).trim();
@@ -176,9 +181,9 @@ function Chat({ isOpen, onClose }) {
 }
 
 /* ─── UI ATOMS ──────────────────────────────────────────────────── */
-const Tag = ({ label, dark }) => (
-  <span className={`inline-flex items-center text-xs px-2.5 py-1 rounded-lg font-medium ${dark ? "text-white" : ""}`}
-    style={dark ? { background: "var(--ink)", color: "#fff" } : { background: "#f0efea", color: "var(--ink-2)", border: "1px solid var(--border)" }}>
+const Tag = ({ label }) => (
+  <span className="inline-flex items-center text-xs px-2.5 py-1 rounded-lg font-medium"
+    style={{ background: "#f0efea", color: "var(--ink-2)", border: "1px solid var(--border)" }}>
     {label}
   </span>
 );
@@ -350,7 +355,7 @@ export default function App() {
                     <p className="text-xs font-body" style={{ color: "var(--ink-4)" }}>{p.context} · {p.duration}</p>
                   </div>
                   <div className="flex flex-wrap gap-1.5 sm:text-right">
-                    {p.stack.slice(0, 3).map((s) => <Tag key={s} label={s} dark={["Python", "NumPy"].includes(s)} />)}
+                    {p.stack.slice(0, 3).map((s) => <Tag key={s} label={s} />)}
                   </div>
                 </div>
               </div>
