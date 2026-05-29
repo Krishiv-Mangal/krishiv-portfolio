@@ -2,11 +2,12 @@ const portfolioData = {
   personal: {
     name: "Krishiv Mangal",
     tagline: "Math & Computing @ BITS Pilani",
-    bio: "Second-year student at BITS Pilani pursuing a Bachelor of Engineering in Mathematics and Computing (graduating 2028). Passionate about quantitative finance, financial mathematics, and building systems at the intersection of rigorous math and real-world data. Transferred from Civil Engineering to Mathematics and Computing after achieving a 9.7 CGPA in Year 1 — placing among the highest performers in the 2024 batch.",
+    bio: "Second-year student at BITS Pilani pursuing a Bachelor of Engineering in Mathematics and Computing (graduating 2028). Passionate about quantitative finance, financial mathematics, and building systems at the intersection of rigorous math and real-world data. Transferred from Civil Engineering to Mathematics and Computing after achieving a 9.7 CGPA in Year 1 , placing among the highest performers in the 2024 batch.",
     location: "Pilani, Rajasthan, India",
     email: "f20241307@pilani.bits-pilani.ac.in",
     phone: "+91-9425759603",
     cgpa: "8.81",
+    phone: "+91-9425759603",
     linkedin: "https://www.linkedin.com/in/krishiv-mangal-20298b335",
     github: "https://github.com/krishivmangal",
   },
@@ -31,7 +32,7 @@ const portfolioData = {
       ],
     },
     {
-      degree: "Class XII — Science",
+      degree: "Class XII (Science)",
       institution: "The Shishukunj International School, Indore",
       board: "CBSE",
       score: "94.4%",
@@ -47,19 +48,33 @@ const portfolioData = {
   ],
   achievements: [
     {
-      title: "Vertical Branch Transfer — Civil to Mathematics & Computing",
+      title: "Vertical Branch Transfer: Civil to Mathematics & Computing",
       duration: "Aug 2024 – May 2025",
       description:
-        "Secured a branch change to the highly competitive Mathematics & Computing program based on exceptional first-year performance — achieving a 9.7 CGPA and placing among the highest performers in the 2024 batch.",
+        "Secured a branch change to the highly competitive Mathematics & Computing program based on exceptional first-year performance, achieving a 9.7 CGPA and placing among the highest performers in the 2024 batch.",
     },
     {
-      title: "Merit Scholarships — 2 Consecutive Semesters",
+      title: "Merit Scholarships: 2 Consecutive Semesters",
       duration: "Jan 2025 – Dec 2025",
       description:
-        "Awarded the 50% BITS69 Batch Scholarship (BITSAA) and 50% MCN Scholarship in Semester 2 (full tuition waiver). Retained the full 100% MCN Scholarship in Semester 3 — one of very few students to receive full scholarships in consecutive semesters.",
+        "Awarded the 50% BITS69 Batch Scholarship (BITSAA) and 50% MCN Scholarship in Semester 2 (full tuition waiver). Retained the full 100% MCN Scholarship in Semester 3, one of very few students to receive full scholarships in consecutive semesters.",
     },
   ],
   projects: [
+    {
+      title: "FRAM — AI-Powered Web App",
+      duration: "May 2026",
+      context: "CAARYA AI Track",
+      url: "https://fram-sigma.vercel.app",
+      stack: ["React", "Vite", "Tailwind CSS", "Claude API"],
+      description:
+        "A fully deployed web application built as part of the CAARYA AI Track, showcasing end-to-end product development with AI integration.",
+      points: [
+        "Designed and built a complete React + Vite frontend with Tailwind CSS, deployed live on Vercel.",
+        "Integrated the Claude API to power intelligent, context-aware features within the application.",
+        "Delivered a production-ready product from scratch — covering UI design, AI integration, and cloud deployment.",
+      ],
+    },
     {
       title: "Option Pricing and Risk Analytics Engine",
       duration: "Jan 2026 – Apr 2026",
@@ -90,7 +105,7 @@ const portfolioData = {
   },
   volunteering: [
     {
-      role: "Active Member — UMANG Vertical",
+      role: "Active Member, UMANG Vertical",
       org: "NSS – National Service Scheme, BITS Pilani",
       duration: "Aug 2024 – Present",
       points: [

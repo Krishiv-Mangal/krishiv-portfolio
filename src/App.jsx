@@ -1,153 +1,153 @@
 import { useState, useRef, useEffect } from "react";
 import portfolioData from "./data/portfolio";
 
-/* ─── SYSTEM PROMPT ─────────────────────────────────────────── */
-const buildSystemPrompt = () => {
-  const d = portfolioData;
-  return `You are an AI assistant for Krishiv Mangal's portfolio. Answer ONLY from the facts below. If unsure, direct to ${d.personal.email}.
+/* ─── SYSTEM PROMPT ────────────────────────────────────────────── */
+const SYSTEM_PROMPT = `You are an AI assistant embedded in Krishiv Mangal's personal portfolio website. Your job is to help visitors learn about Krishiv professionally and accurately.
 
-KRISHIV MANGAL — ${d.personal.tagline}
-Bio: ${d.personal.bio}
-Email: ${d.personal.email} | LinkedIn: ${d.personal.linkedin} | Location: ${d.personal.location}
-CGPA: ${d.personal.cgpa}
-
-EDUCATION:
-- BITS Pilani: B.E. Math & Computing, 2024-2028, CGPA 8.81
-- Year 1 CGPA: 9.7 (branch transfer to Math & Computing based on performance)
-- Class XII: Shishukunj International School Indore, CBSE, 94.4% (2024)
-- Class X: Shishukunj International School Indore, CBSE, 97.4% (2022)
-- Coursework: Probability, Linear Algebra, Data Structures, Stochastic Calculus, Optimization, Discrete Math, Real Analysis, OOP, Complex Analysis
+KRISHIV'S DATA — answer ONLY from this, never invent anything:
+---
+Name: Krishiv Mangal
+College: BITS Pilani — B.E. Mathematics and Computing, 2024–2028, Current CGPA: 8.81
+Year 1 CGPA: 9.7 — among the highest performers in the 2024 batch; earned branch transfer from Civil Engineering to Math & Computing
+Email: f20241307@pilani.bits-pilani.ac.in
+LinkedIn: https://www.linkedin.com/in/krishiv-mangal-20298b335
+Location: Pilani, Rajasthan, India
 
 ACHIEVEMENTS:
-- Branch transfer Civil→Math&Computing after 9.7 CGPA in Year 1 (among highest performers 2024 batch)
-- Merit scholarships 2 consecutive semesters: 50% BITS69+50% MCN in Sem2 (full waiver), 100% MCN in Sem3
+- Branch Transfer Civil→Math&Computing: Achieved 9.7 CGPA in Year 1, among highest performers in 2024 batch
+- Merit Scholarships 2 consecutive semesters: 50% BITS69 + 50% MCN in Sem2 (full tuition waiver); 100% MCN in Sem3 — one of very few students to receive full scholarships in consecutive semesters
 
-PROJECT: Option Pricing and Risk Analytics Engine (Jan-Apr 2026, BITS Pilani)
-Stack: Python, NumPy, Pandas, SciPy, Matplotlib, yfinance, arch/GARCH, Jupyter
-- Data pipeline for all Nifty 50 stocks using yfinance+Pandas, NumPy for volatility metrics
-- Black-Scholes-Merton model from scratch; GARCH volatility forecasting via arch library
-- Scenario analysis engine: 4x4 grid of price/vol shocks, Greeks (Delta/Gamma/Vega) via finite-difference
-- 3-model VaR: Parametric, GARCH-based, Monte Carlo at 95% and 99% confidence
+PROJECT — Option Pricing and Risk Analytics Engine (Jan–Apr 2026, BITS Pilani):
+Stack: Python, NumPy, Pandas, SciPy, Matplotlib, yfinance, arch/GARCH, Jupyter Notebooks
+- Automated data pipeline for all Nifty 50 stocks using yfinance + Pandas; NumPy vectorized ops for volatility metrics
+- Black-Scholes-Merton pricing model from scratch; GARCH volatility forecasting via arch library
+- Scenario analysis engine: 4×4 price/volatility shock grid; Greeks (Delta, Gamma, Vega) via finite-difference methods
+- 3-model VaR: Parametric, GARCH-based, Monte Carlo at 95% and 99% confidence levels
 
 SKILLS:
-- Languages: Java, C, C++
-- Libraries: NumPy, Pandas, Matplotlib
+- Programming Languages: Java, C, C++
+- Libraries & Frameworks: NumPy, Pandas, Matplotlib
 - Tools: Git, LaTeX, Jupyter Notebook, VS Code
-- Math: Stochastic Processes, Financial Mathematics, Probability Theory, Combinatorics, Linear Algebra
+- Mathematics: Stochastic Processes, Financial Mathematics, Probability Theory, Combinatorics, Linear Algebra
 - Languages: English (Proficient), Hindi (Native)
 
-VOLUNTEERING: NSS UMANG vertical, BITS Pilani (Aug 2024-present)
-- Scholarships and mentorship for underprivileged students, fundraising, community outreach
+COURSEWORK: Probability & Statistics, Linear Algebra, Data Structures, Stochastic Calculus & Finance, Optimization, Discrete Mathematics, Real Analysis, Differential Equations, OOP, Complex Analysis
 
-Be friendly and concise. Never invent facts.`;
-};
+VOLUNTEERING: NSS UMANG Vertical, BITS Pilani (Aug 2024–present)
+- Scholarships & mentorship for underprivileged students; fundraising and community outreach drives
+---
 
-/* ─── CHAT COMPONENT ─────────────────────────────────────────── */
+BEHAVIOUR RULES:
+1. GROUNDING — Only state facts from the data above. If not in the data, say "I don't have that info — reach Krishiv at f20241307@pilani.bits-pilani.ac.in"
+2. RELEVANCE — Be concise and focused. No padding or filler sentences.
+3. CONTEXT AWARENESS — You have the full conversation history. Don't repeat information already given. Build on it.
+4. EDGE CASES:
+   - Off-topic / general knowledge questions → "I'm specifically here to answer questions about Krishiv — ask me about his projects, skills, or background!"
+   - Contact requests → provide email and LinkedIn
+   - Inappropriate questions → decline professionally and redirect
+5. TONE — Warm, smart, professional. Like a well-informed colleague representing Krishiv.`;
+
+const SUGGESTIONS = [
+  "What projects has Krishiv built?",
+  "What are his top skills?",
+  "Tell me about his scholarships",
+  "What math courses has he taken?",
+  "How can I contact him?",
+];
+
+/* ─── CHAT PANEL ────────────────────────────────────────────────── */
 function Chat({ isOpen, onClose }) {
   const [messages, setMessages] = useState([
-    {
-      role: "assistant",
-      content: "Hey! I'm Krishiv's AI assistant. Ask me anything about his background, projects, or skills.",
-    },
+    { role: "assistant", content: "Hi! I'm Krishiv's portfolio AI. Ask me anything about his work, skills, or background." },
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const bottomRef = useRef(null);
+  const inputRef = useRef(null);
 
-  useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, loading]);
+  useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages, loading]);
+  useEffect(() => { if (isOpen) setTimeout(() => inputRef.current?.focus(), 120); }, [isOpen]);
 
-  const send = async () => {
-    const text = input.trim();
-    if (!text || loading) return;
+  const send = async (text) => {
+    const msg = (text ?? input).trim();
+    if (!msg || loading) return;
     setInput("");
-    const newMessages = [...messages, { role: "user", content: text }];
-    setMessages(newMessages);
+    const updated = [...messages, { role: "user", content: msg }];
+    setMessages(updated);
     setLoading(true);
     try {
-      const GROQ_KEY = import.meta.env.VITE_GROQ_API_KEY;
-      if (!GROQ_KEY) throw new Error("No API key");
-      const history = newMessages.slice(1, -1).map((m) => ({
-        role: m.role === "assistant" ? "assistant" : "user",
-        content: m.content,
-      }));
-      const res = await fetch(
-        "https://api.groq.com/openai/v1/chat/completions",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${GROQ_KEY}`,
-          },
-          body: JSON.stringify({
-            model: "llama-3.1-8b-instant",
-            messages: [
-              { role: "system", content: buildSystemPrompt() },
-              ...history,
-              { role: "user", content: text },
-            ],
-            max_tokens: 800,
-            temperature: 0.7,
-          }),
-        }
-      );
-      if (!res.ok) {
-        const err = await res.json();
-        console.error("Groq error:", err);
-        throw new Error("API error");
-      }
+      const key = import.meta.env.VITE_GROQ_API_KEY;
+      if (!key) throw new Error("No key");
+      const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
+        body: JSON.stringify({
+          model: "llama-3.1-8b-instant",
+          messages: [
+            { role: "system", content: SYSTEM_PROMPT },
+            ...updated.map((m) => ({ role: m.role === "assistant" ? "assistant" : "user", content: m.content })),
+          ],
+          max_tokens: 600,
+          temperature: 0.55,
+        }),
+      });
+      if (!res.ok) { const e = await res.json(); console.error(e); throw new Error(); }
       const data = await res.json();
-      const reply =
-        data.choices?.[0]?.message?.content ||
-        "Sorry, I couldn\'t generate a response.";
-      setMessages((prev) => [...prev, { role: "assistant", content: reply }]);
-    } catch (e) {
-      console.error(e);
-      setMessages((prev) => [
-        ...prev,
-        { role: "assistant", content: "Error reaching AI. Check the browser console for details." },
-      ]);
+      setMessages((p) => [...p, { role: "assistant", content: data.choices?.[0]?.message?.content || "Sorry, try again." }]);
+    } catch {
+      setMessages((p) => [...p, { role: "assistant", content: "Something went wrong. Please try again." }]);
     }
     setLoading(false);
   };
 
-  const suggestions = [
-    "What projects has Krishiv built?",
-    "What are his strongest skills?",
-    "Tell me about his scholarships",
-    "What courses has he taken?",
-  ];
-
   if (!isOpen) return null;
+
   return (
-    <div style={styles.chatOverlay} onClick={onClose}>
-      <div style={styles.chatPanel} onClick={(e) => e.stopPropagation()}>
-        <div style={styles.chatHeader}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <div style={styles.avatarSmall}>KM</div>
+    <div className="fixed inset-0 z-50 flex items-end justify-end p-3 sm:p-6 anim-fade-in" style={{ background: "rgba(10,10,10,0.5)", backdropFilter: "blur(4px)" }} onClick={onClose}>
+      <div className="flex flex-col overflow-hidden anim-slide-up w-full sm:w-[400px] bg-card rounded-2xl" style={{ height: "min(620px,88vh)", border: "1px solid var(--border)", boxShadow: "0 24px 64px rgba(0,0,0,0.18)" }} onClick={(e) => e.stopPropagation()}>
+
+        {/* Header */}
+        <div className="flex items-center justify-between px-5 py-4" style={{ background: "var(--ink)", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white font-display" style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.12)" }}>KM</div>
             <div>
-              <div style={styles.chatName}>Krishiv's AI</div>
-              <div style={styles.chatStatus}>● Online</div>
+              <p className="text-white text-sm font-semibold font-display">Krishiv's AI</p>
+              <p className="text-xs" style={{ color: "#4ade80" }}>● Ready</p>
             </div>
           </div>
-          <button onClick={onClose} style={styles.closeBtn}>✕</button>
+          <button onClick={onClose} className="text-white/40 hover:text-white/80 transition-colors text-lg w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/5">✕</button>
         </div>
-        <div style={styles.chatMessages}>
+
+        {/* Messages */}
+        <div className="flex-1 overflow-y-auto slim-scroll px-4 py-4 flex flex-col gap-3">
           {messages.map((m, i) => (
-            <div key={i} style={{ display: "flex", justifyContent: m.role === "user" ? "flex-end" : "flex-start", marginBottom: 12 }}>
-              <div style={m.role === "user" ? styles.userBubble : styles.aiBubble}>{m.content}</div>
+            <div key={i} className={`flex gap-2 ${m.role === "user" ? "justify-end" : "justify-start"} anim-fade-up`} style={{ animationDelay: `${i * 0.03}s` }}>
+              {m.role === "assistant" && (
+                <div className="w-6 h-6 rounded-full flex-shrink-0 mt-0.5 flex items-center justify-center text-white text-xs font-bold font-display" style={{ background: "var(--ink)" }}>✦</div>
+              )}
+              <div className={`text-sm leading-relaxed px-4 py-3 max-w-[78%] rounded-2xl ${m.role === "user" ? "text-white rounded-br-sm" : "rounded-bl-sm"}`}
+                style={m.role === "user" ? { background: "var(--ink)" } : { background: "#f3f2ef", color: "var(--ink)" }}>
+                {m.content}
+              </div>
             </div>
           ))}
+
           {loading && (
-            <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: 12 }}>
-              <div style={styles.aiBubble}><span style={styles.typing}>● ● ●</span></div>
+            <div className="flex gap-2 justify-start">
+              <div className="w-6 h-6 rounded-full flex-shrink-0 mt-0.5 flex items-center justify-center text-white text-xs font-bold font-display" style={{ background: "var(--ink)" }}>✦</div>
+              <div className="px-4 py-3 rounded-2xl rounded-bl-sm flex gap-1.5 items-center" style={{ background: "#f3f2ef" }}>
+                <span className="dot" /><span className="dot" /><span className="dot" />
+              </div>
             </div>
           )}
-          {messages.length === 1 && (
-            <div style={styles.suggestions}>
-              {suggestions.map((s, i) => (
-                <button key={i} style={styles.suggBtn} onClick={() => { setInput(s); }}>
+
+          {messages.length === 1 && !loading && (
+            <div className="mt-1 flex flex-col gap-2">
+              <p className="text-xs px-1" style={{ color: "var(--ink-4)" }}>Try asking:</p>
+              {SUGGESTIONS.map((s, i) => (
+                <button key={i} onClick={() => send(s)}
+                  className="text-left text-xs px-3.5 py-2.5 rounded-xl border transition-all hover:border-ink-2 hover:bg-gray-50 font-body"
+                  style={{ border: "1px solid var(--border)", color: "var(--ink-2)", background: "var(--card)" }}>
                   {s}
                 </button>
               ))}
@@ -155,160 +155,235 @@ function Chat({ isOpen, onClose }) {
           )}
           <div ref={bottomRef} />
         </div>
-        <div style={styles.chatInput}>
-          <input
-            style={styles.inputBox}
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && send()}
-            placeholder="Ask anything about Krishiv..."
-          />
-          <button onClick={send} disabled={loading} style={styles.sendBtn}>→</button>
+
+        {/* Input */}
+        <div className="p-3" style={{ borderTop: "1px solid var(--border)" }}>
+          <div className="flex gap-2 items-end rounded-xl p-1" style={{ background: "#f3f2ef" }}>
+            <input ref={inputRef} value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && send()}
+              placeholder="Ask about Krishiv..."
+              className="flex-1 text-sm px-3 py-2 bg-transparent outline-none font-body"
+              style={{ color: "var(--ink)" }} />
+            <button onClick={() => send()} disabled={loading || !input.trim()}
+              className="w-8 h-8 rounded-lg text-white text-sm flex items-center justify-center transition-all disabled:opacity-30 hover:opacity-80 flex-shrink-0"
+              style={{ background: "var(--ink)" }}>↑</button>
+          </div>
         </div>
       </div>
     </div>
   );
 }
 
-/* ─── SECTION COMPONENTS ─────────────────────────────────────── */
-function Tag({ label, accent }) {
-  return (
-    <span style={{ ...styles.tag, ...(accent ? styles.tagAccent : {}) }}>{label}</span>
-  );
-}
+/* ─── UI ATOMS ──────────────────────────────────────────────────── */
+const Tag = ({ label, dark }) => (
+  <span className={`inline-flex items-center text-xs px-2.5 py-1 rounded-lg font-medium ${dark ? "text-white" : ""}`}
+    style={dark ? { background: "var(--ink)", color: "#fff" } : { background: "#f0efea", color: "var(--ink-2)", border: "1px solid var(--border)" }}>
+    {label}
+  </span>
+);
 
-function SectionLabel({ children }) {
-  return <div style={styles.sectionLabel}>{children}</div>;
-}
+const SectionEyebrow = ({ children }) => (
+  <p className="text-xs font-bold tracking-[0.14em] uppercase mb-3 font-body" style={{ color: "var(--ink-4)" }}>{children}</p>
+);
 
-/* ─── MAIN APP ───────────────────────────────────────────────── */
+const SectionHeading = ({ children }) => (
+  <h2 className="text-3xl sm:text-4xl font-bold tracking-tight mb-8 font-display" style={{ color: "var(--ink)", letterSpacing: "-0.02em" }}>{children}</h2>
+);
+
+/* ─── APP ───────────────────────────────────────────────────────── */
 export default function App() {
   const [chatOpen, setChatOpen] = useState(false);
+  const [mobileMenu, setMobileMenu] = useState(false);
+  const [dark, setDark] = useState(false);
   const [activeNav, setActiveNav] = useState("about");
-  const { personal, education, achievements, projects, skills, volunteering } = portfolioData;
-
   const navItems = ["about", "projects", "skills", "education", "achievements", "contact"];
+  const { personal, education, achievements, projects, skills, volunteering } = portfolioData;
 
   const scrollTo = (id) => {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
-    setActiveNav(id);
+    setActiveNav(id); setMobileMenu(false);
   };
 
   useEffect(() => {
-    const handleScroll = () => {
-      const offsets = navItems.map((id) => ({
-        id,
-        top: document.getElementById(id)?.getBoundingClientRect().top ?? Infinity,
-      }));
-      const visible = offsets.filter((o) => o.top <= 120).sort((a, b) => b.top - a.top);
-      if (visible.length) setActiveNav(visible[0].id);
+    const fn = () => {
+      for (const id of [...navItems].reverse()) {
+        if (document.getElementById(id)?.getBoundingClientRect().top <= 120) { setActiveNav(id); break; }
+      }
     };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    window.addEventListener("scroll", fn, { passive: true });
+    return () => window.removeEventListener("scroll", fn);
   }, []);
 
   return (
-    <div style={styles.root}>
-      {/* NAV */}
-      <nav style={styles.nav}>
-        <div style={styles.navInner}>
-          <div style={styles.navBrand}>KM</div>
-          <div style={styles.navLinks}>
+    <div className={`min-h-screen${dark ? " dark-mode" : ""}`} style={{ background: "var(--surface)" }}>
+
+      {/* ── NAV ── */}
+      <header className="sticky top-0 z-40" style={{ background: "rgba(247,246,243,0.88)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", borderBottom: "1px solid var(--border)" }}>
+        <div className="max-w-5xl mx-auto px-4 sm:px-8 h-14 flex items-center gap-6">
+          <button onClick={() => scrollTo("about")} className="font-display font-bold text-base tracking-tight mr-auto" style={{ color: "var(--ink)" }}>KM</button>
+
+          {/* Desktop */}
+          <nav className="hidden md:flex items-center gap-6">
             {navItems.map((id) => (
-              <button
-                key={id}
-                onClick={() => scrollTo(id)}
-                style={{ ...styles.navLink, ...(activeNav === id ? styles.navLinkActive : {}) }}
-              >
+              <button key={id} onClick={() => scrollTo(id)}
+                className={`nav-link text-xs font-medium capitalize transition-colors pb-0.5 font-body ${activeNav === id ? "active" : ""}`}
+                style={{ color: activeNav === id ? "var(--ink)" : "var(--ink-3)" }}>
                 {id}
               </button>
             ))}
-          </div>
-          <button style={styles.chatNavBtn} onClick={() => setChatOpen(true)}>
-            Ask AI ✦
+          </nav>
+
+          <button onClick={() => setDark(!dark)}
+            className="hidden sm:flex items-center justify-center w-8 h-8 rounded-lg transition-colors font-body"
+            style={{ background: "var(--surface)", border: "1px solid var(--border)", color: "var(--ink)" }}
+            title="Toggle dark mode">
+            {dark ? "☀" : "☾"}
+          </button>
+          <button onClick={() => setChatOpen(true)}
+            className="hidden sm:flex items-center gap-1.5 text-xs font-semibold px-4 py-2 rounded-lg transition-opacity hover:opacity-80 font-body"
+            style={{ background: "var(--primary-bg)", color: "var(--primary-text)" }}>
+            <span>✦</span> Ask AI
+          </button>
+
+          {/* Mobile toggle */}
+          <button onClick={() => setMobileMenu(!mobileMenu)} className="md:hidden p-2 rounded-lg" style={{ color: "var(--ink)" }}>
+            <div className="space-y-1.5">
+              <span className={`block w-5 h-0.5 bg-current transition-transform ${mobileMenu ? "rotate-45 translate-y-2" : ""}`} />
+              <span className={`block w-5 h-0.5 bg-current transition-opacity ${mobileMenu ? "opacity-0" : ""}`} />
+              <span className={`block w-5 h-0.5 bg-current transition-transform ${mobileMenu ? "-rotate-45 -translate-y-2" : ""}`} />
+            </div>
           </button>
         </div>
-      </nav>
 
-      {/* HERO */}
-      <header style={styles.hero}>
-        <div style={styles.heroInner}>
-          <div style={styles.heroLeft}>
-            <div style={styles.heroPill}>BITS Pilani · 2028</div>
-            <h1 style={styles.heroName}>{personal.name}</h1>
-            <p style={styles.heroTagline}>Mathematics & Computing<br />Quantitative Finance · ML · Systems</p>
-            <p style={styles.heroBio}>{personal.bio}</p>
-            <div style={styles.heroActions}>
-              <button style={styles.primaryBtn} onClick={() => setChatOpen(true)}>
-                ✦ Ask my AI
+        {/* Mobile menu */}
+        {mobileMenu && (
+          <div className="md:hidden px-4 pb-4 pt-2 border-t anim-fade-up" style={{ borderColor: "var(--border)", background: "var(--surface)" }}>
+            {navItems.map((id) => (
+              <button key={id} onClick={() => scrollTo(id)}
+                className="block w-full text-left px-3 py-2.5 text-sm font-medium capitalize rounded-lg mb-1 font-body"
+                style={{ color: activeNav === id ? "var(--ink)" : "var(--ink-3)", background: activeNav === id ? "#eeecea" : "transparent" }}>
+                {id}
               </button>
-              <a href={personal.linkedin} target="_blank" rel="noreferrer" style={styles.outlineBtn}>
-                LinkedIn →
-              </a>
-            </div>
+            ))}
+            <button onClick={() => { setChatOpen(true); setMobileMenu(false); }}
+              className="mt-2 w-full text-sm font-semibold py-2.5 rounded-xl font-body"
+              style={{ background: "var(--ink)" }}>
+              ✦ Ask AI
+            </button>
           </div>
-          <div style={styles.heroRight}>
-            <div style={styles.heroCard}>
-              <div style={styles.heroCardRow}><span style={styles.heroCardLabel}>CGPA</span><span style={styles.heroCardVal}>8.81</span></div>
-              <div style={styles.heroCardDivider} />
-              <div style={styles.heroCardRow}><span style={styles.heroCardLabel}>Year 1 CGPA</span><span style={styles.heroCardVal}>9.7</span></div>
-              <div style={styles.heroCardDivider} />
-              <div style={styles.heroCardRow}><span style={styles.heroCardLabel}>Scholarships</span><span style={styles.heroCardVal}>2 sem</span></div>
-              <div style={styles.heroCardDivider} />
-              <div style={styles.heroCardRow}><span style={styles.heroCardLabel}>Grad Year</span><span style={styles.heroCardVal}>2028</span></div>
-            </div>
-          </div>
-        </div>
+        )}
       </header>
 
-      <main style={styles.main}>
+      {/* ── HERO ── */}
+      <section className="pt-16 pb-20 sm:pt-24 sm:pb-28" style={{ background: "var(--card)", borderBottom: "1px solid var(--border)" }}>
+        <div className="max-w-5xl mx-auto px-4 sm:px-8">
 
-        {/* ABOUT */}
-        <section id="about" style={styles.section}>
-          <SectionLabel>About</SectionLabel>
-          <h2 style={styles.sectionTitle}>Who I am</h2>
-          <p style={styles.para}>{personal.bio}</p>
+          <h1 className="hero-2 font-display font-bold leading-none mb-4" style={{ fontSize: "clamp(3rem, 10vw, 6rem)", letterSpacing: "-0.04em", color: "var(--ink)" }}>
+            Krishiv<br /><span style={{ color: "var(--ink-3)" }}>Mangal</span>
+          </h1>
 
+          <p className="hero-3 text-base sm:text-lg mb-4 font-body" style={{ color: "var(--ink-2)" }}>
+            B.E. Mathematics & Computing, BITS Pilani
+          </p>
+          <p className="hero-4 text-sm sm:text-base leading-relaxed max-w-xl mb-10 font-body" style={{ color: "var(--ink-3)" }}>
+            {personal.bio}
+          </p>
+
+          <div className="hero-5 flex flex-wrap gap-3 mb-12">
+            <button onClick={() => setChatOpen(true)}
+              className="flex items-center gap-2 font-semibold px-5 py-3 rounded-xl text-sm transition-opacity hover:opacity-80 font-body"
+              style={{ background: "var(--primary-bg)", color: "var(--primary-text)" }}>
+              ✦ Ask my AI
+            </button>
+            <a href={personal.linkedin} target="_blank" rel="noreferrer"
+              className="flex items-center gap-2 font-semibold px-5 py-3 rounded-xl text-sm transition-all hover:border-ink font-body card-hover"
+              style={{ border: "1.5px solid var(--border)", color: "var(--ink)", textDecoration: "none" }}>
+              LinkedIn ↗
+            </a>
+            <a href={`mailto:${personal.email}`}
+              className="flex items-center gap-2 font-semibold px-5 py-3 rounded-xl text-sm transition-all hover:border-ink font-body card-hover"
+              style={{ border: "1.5px solid var(--border)", color: "var(--ink)", textDecoration: "none" }}>
+              Email →
+            </a>
+          </div>
+
+          {/* Stats row */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+            {[
+              ["8.81", "Current CGPA"],
+              ["9.7", "Year 1 CGPA"],
+              ["2×", "Merit Scholarships"],
+              ["2028", "Expected Grad"],
+            ].map(([val, label]) => (
+              <div key={label} className="rounded-xl p-4 card-hover" style={{ background: "var(--card)", border: "1px solid var(--border)" }}>
+                <p className="font-display font-bold text-2xl sm:text-3xl mb-1" style={{ letterSpacing: "-0.03em" }}>{val}</p>
+                <p className="text-xs font-body" style={{ color: "var(--ink-3)" }}>{label}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <main className="max-w-5xl mx-auto px-4 sm:px-8">
+
+        {/* ── ABOUT ── */}
+        <section id="about" className="py-16 sm:py-20">
+          <SectionEyebrow>About</SectionEyebrow>
+          <SectionHeading>Who I am</SectionHeading>
+          <p className="text-base sm:text-lg leading-relaxed max-w-2xl font-body" style={{ color: "var(--ink-2)" }}>{personal.bio}</p>
         </section>
 
-        <div style={styles.divider} />
+        <div style={{ height: 1, background: "var(--border)" }} />
 
-        {/* PROJECTS */}
-        <section id="projects" style={styles.section}>
-          <SectionLabel>Projects</SectionLabel>
-          <h2 style={styles.sectionTitle}>What I've built</h2>
+        {/* ── PROJECTS ── */}
+        <section id="projects" className="py-16 sm:py-20">
+          <SectionEyebrow>Projects</SectionEyebrow>
+          <SectionHeading>What I've built</SectionHeading>
           {projects.map((p, i) => (
-            <div key={i} style={styles.projectCard}>
-              <div style={styles.projectHeader}>
-                <div>
-                  <h3 style={styles.projectTitle}>{p.title}</h3>
-                  <div style={styles.projectMeta}>{p.context} · {p.duration}</div>
+            <div key={i} className="rounded-2xl overflow-hidden mb-6 card-hover" style={{ background: "var(--card)", border: "1px solid var(--border)" }}>
+              {/* Card header stripe */}
+              <div className="px-6 pt-6 pb-5 sm:px-8 sm:pt-8" style={{ borderBottom: "1px solid var(--border)" }}>
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
+                  <div>
+                    <div className="flex items-center gap-3 mb-1"><h3 className="font-display font-bold text-xl sm:text-2xl" style={{ letterSpacing: "-0.02em" }}>{p.title}</h3>{p.url && (<a href={p.url} target="_blank" rel="noreferrer" className="text-xs font-semibold px-2.5 py-1 rounded-lg font-body flex-shrink-0" style={{ background: "var(--ink)", color: "#fff", textDecoration: "none" }}>Live ↗</a>)}</div>
+                    <p className="text-xs font-body" style={{ color: "var(--ink-4)" }}>{p.context} · {p.duration}</p>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5 sm:text-right">
+                    {p.stack.slice(0, 3).map((s) => <Tag key={s} label={s} dark={["Python", "NumPy"].includes(s)} />)}
+                  </div>
                 </div>
               </div>
-              <p style={{ ...styles.para, marginBottom: 16 }}>{p.description}</p>
-              <ul style={styles.bulletList}>
-                {p.points.map((pt, j) => (
-                  <li key={j} style={styles.bullet}><span style={styles.bulletDot}>▸</span>{pt}</li>
-                ))}
-              </ul>
-              <div style={styles.tagRow}>
-                {p.stack.map((s) => <Tag key={s} label={s} accent={["Python", "NumPy", "SciPy"].includes(s)} />)}
+
+              <div className="px-6 py-5 sm:px-8 sm:py-6">
+                <p className="text-sm leading-relaxed mb-5 font-body" style={{ color: "var(--ink-2)" }}>{p.description}</p>
+                <ul className="space-y-3 mb-5">
+                  {p.points.map((pt, j) => (
+                    <li key={j} className="flex gap-3 text-sm leading-relaxed font-body" style={{ color: "var(--ink-2)" }}>
+                      <span className="flex-shrink-0 mt-0.5 font-bold" style={{ color: "var(--ink-4)", fontSize: 10 }}>▸</span>
+                      {pt}
+                    </li>
+                  ))}
+                </ul>
+                <div className="flex flex-wrap gap-1.5">
+                  {p.stack.slice(3).map((s) => <Tag key={s} label={s} />)}
+                </div>
               </div>
             </div>
           ))}
         </section>
 
-        <div style={styles.divider} />
+        <div style={{ height: 1, background: "var(--border)" }} />
 
-        {/* SKILLS */}
-        <section id="skills" style={styles.section}>
-          <SectionLabel>Skills</SectionLabel>
-          <h2 style={styles.sectionTitle}>What I know</h2>
-          <div style={styles.skillsGrid}>
+        {/* ── SKILLS ── */}
+        <section id="skills" className="py-16 sm:py-20">
+          <SectionEyebrow>Skills</SectionEyebrow>
+          <SectionHeading>What I know</SectionHeading>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {Object.entries(skills).map(([cat, items]) => (
-              <div key={cat} style={styles.skillCard}>
-                <div style={styles.skillCat}>{cat}</div>
-                <div style={styles.tagRow}>
+              <div key={cat} className="rounded-xl p-5 card-hover" style={{ background: "var(--card)", border: "1px solid var(--border)" }}>
+                <p className="text-xs font-bold tracking-[0.12em] uppercase mb-3 font-body" style={{ color: "var(--ink-4)" }}>{cat}</p>
+                <div className="flex flex-wrap gap-1.5">
                   {items.map((s) => <Tag key={s} label={s} />)}
                 </div>
               </div>
@@ -316,214 +391,132 @@ export default function App() {
           </div>
         </section>
 
-        <div style={styles.divider} />
+        <div style={{ height: 1, background: "var(--border)" }} />
 
-        {/* EDUCATION */}
-        <section id="education" style={styles.section}>
-          <SectionLabel>Education</SectionLabel>
-          <h2 style={styles.sectionTitle}>Academic background</h2>
-          {education.map((e, i) => (
-            <div key={i} style={styles.eduRow}>
-              <div style={styles.eduLeft}>
-                <div style={styles.eduDot} />
-                {i < education.length - 1 && <div style={styles.eduLine} />}
-              </div>
-              <div style={styles.eduRight}>
-                <div style={styles.eduDegree}>{e.degree}</div>
-                <div style={styles.eduInst}>{e.institution}</div>
-                <div style={styles.eduMeta}>
-                  {e.cgpa && `CGPA: ${e.cgpa}`}
-                  {e.score && `Score: ${e.score}`}
-                  {e.duration && ` · ${e.duration}`}
-                  {e.year && ` · ${e.year}`}
-                </div>
-                {e.coursework && (
-                  <div style={{ marginTop: 10 }}>
-                    <div style={styles.skillCat}>Relevant Coursework</div>
-                    <div style={styles.tagRow}>
-                      {e.coursework.map((c) => <Tag key={c} label={c} />)}
+        {/* ── EDUCATION ── */}
+        <section id="education" className="py-16 sm:py-20">
+          <SectionEyebrow>Education</SectionEyebrow>
+          <SectionHeading>Academic background</SectionHeading>
+          <div className="relative pl-5" style={{ borderLeft: "2px solid var(--border)" }}>
+            {education.map((e, i) => (
+              <div key={i} className="relative pb-10 last:pb-0">
+                <div className="absolute -left-[25px] w-3 h-3 rounded-full mt-1.5" style={{ background: i === 0 ? "var(--ink)" : "var(--border)", border: "2px solid var(--surface)" }} />
+                <div className="rounded-xl p-5 sm:p-6 card-hover" style={{ background: "var(--card)", border: "1px solid var(--border)" }}>
+                  <h3 className="font-display font-bold text-base sm:text-lg mb-0.5" style={{ letterSpacing: "-0.01em" }}>{e.degree}</h3>
+                  <p className="text-sm mb-2 font-body" style={{ color: "var(--ink-2)" }}>{e.institution}</p>
+                  <p className="text-xs font-body" style={{ color: "var(--ink-4)" }}>
+                    {e.cgpa && `CGPA ${e.cgpa}`}{e.score && `Score: ${e.score}`}
+                    {(e.duration || e.year) && ` · ${e.duration || e.year}`}
+                  </p>
+                  {e.coursework && (
+                    <div className="mt-4">
+                      <p className="text-xs font-bold tracking-widest uppercase mb-2 font-body" style={{ color: "var(--ink-4)" }}>Coursework</p>
+                      <div className="flex flex-wrap gap-1.5">{e.coursework.map((c) => <Tag key={c} label={c} />)}</div>
                     </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <div style={{ height: 1, background: "var(--border)" }} />
+
+        {/* ── ACHIEVEMENTS ── */}
+        <section id="achievements" className="py-16 sm:py-20">
+          <SectionEyebrow>Achievements & Volunteering</SectionEyebrow>
+          <SectionHeading>Recognition & giving back</SectionHeading>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {achievements.map((a, i) => (
+              <div key={i} className="rounded-xl p-5 sm:p-6 card-hover" style={{ background: "var(--card)", border: "1px solid var(--border)" }}>
+                <div className="w-10 h-10 rounded-lg flex items-center justify-center text-lg mb-4" style={{ background: "var(--card)", border: "1px solid var(--border)" }}>★</div>
+                <h3 className="font-display font-bold text-sm sm:text-base mb-1" style={{ letterSpacing: "-0.01em" }}>{a.title}</h3>
+                <p className="text-xs mb-3 font-body" style={{ color: "var(--ink-4)" }}>{a.duration}</p>
+                <p className="text-sm leading-relaxed font-body" style={{ color: "var(--ink-2)" }}>{a.description}</p>
+              </div>
+            ))}
+            {volunteering.map((v, i) => (
+              <div key={i} className="rounded-xl p-5 sm:p-6 sm:col-span-2 card-hover" style={{ background: "var(--card)", border: "1px solid var(--border)" }}>
+                <div className="flex gap-4">
+                  <div className="w-10 h-10 rounded-lg flex items-center justify-center text-lg flex-shrink-0" style={{ background: "var(--primary-bg)", color: "var(--primary-text)" }}>♥</div>
+                  <div>
+                    <h3 className="font-display font-bold text-sm sm:text-base mb-0.5" style={{ letterSpacing: "-0.01em" }}>{v.role}</h3>
+                    <p className="text-xs mb-3 font-body" style={{ color: "var(--ink-4)" }}>{v.org} · {v.duration}</p>
+                    <ul className="space-y-2">
+                      {v.points.map((pt, j) => (
+                        <li key={j} className="flex gap-2.5 text-sm leading-relaxed font-body" style={{ color: "var(--ink-2)" }}>
+                          <span className="flex-shrink-0 mt-0.5 font-bold" style={{ color: "var(--ink-4)", fontSize: 10 }}>▸</span>{pt}
+                        </li>
+                      ))}
+                    </ul>
                   </div>
-                )}
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </section>
 
-        <div style={styles.divider} />
+        <div style={{ height: 1, background: "var(--border)" }} />
 
-        {/* ACHIEVEMENTS */}
-        <section id="achievements" style={styles.section}>
-          <SectionLabel>Achievements & Volunteering</SectionLabel>
-          <h2 style={styles.sectionTitle}>Recognition & giving back</h2>
-          {achievements.map((a, i) => (
-            <div key={i} style={styles.achieveCard}>
-              <div style={styles.achieveIcon}>★</div>
-              <div>
-                <div style={styles.achieveTitle}>{a.title}</div>
-                <div style={styles.achieveMeta}>{a.duration}</div>
-                <p style={{ ...styles.para, marginTop: 6 }}>{a.description}</p>
-              </div>
-            </div>
-          ))}
-          {volunteering.map((v, i) => (
-            <div key={i} style={styles.achieveCard}>
-              <div style={{ ...styles.achieveIcon, background: "#111", color: "#fff" }}>♥</div>
-              <div>
-                <div style={styles.achieveTitle}>{v.role}</div>
-                <div style={styles.achieveMeta}>{v.org} · {v.duration}</div>
-                <ul style={{ ...styles.bulletList, marginTop: 8 }}>
-                  {v.points.map((pt, j) => (
-                    <li key={j} style={styles.bullet}><span style={styles.bulletDot}>▸</span>{pt}</li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          ))}
-        </section>
-
-        <div style={styles.divider} />
-
-        {/* CONTACT */}
-        <section id="contact" style={styles.section}>
-          <SectionLabel>Contact</SectionLabel>
-          <h2 style={styles.sectionTitle}>Get in touch</h2>
-          <div style={styles.contactGrid}>
-            <a href={`mailto:${personal.email}`} style={styles.contactCard}>
-              <div style={styles.contactIcon}>✉</div>
-              <div style={styles.contactLabel}>Email</div>
-              <div style={styles.contactVal}>{personal.email}</div>
+        {/* ── CONTACT ── */}
+        <section id="contact" className="py-16 sm:py-20">
+          <SectionEyebrow>Contact</SectionEyebrow>
+          <SectionHeading>Get in touch</SectionHeading>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <a href={`mailto:${personal.email}`}
+              className="rounded-xl p-4 sm:p-5 card-hover block no-underline"
+              style={{ background: "var(--card)", border: "1px solid var(--border)", textDecoration: "none" }}>
+              <span className="text-2xl block mb-3">✉</span>
+              <p className="text-xs font-bold uppercase tracking-widest mb-1 font-body" style={{ color: "var(--ink-4)" }}>Email</p>
+              <p className="text-xs font-semibold font-body truncate" style={{ color: "var(--ink)" }}>Write to me</p>
             </a>
-            <a href={personal.linkedin} target="_blank" rel="noreferrer" style={styles.contactCard}>
-              <div style={styles.contactIcon}>in</div>
-              <div style={styles.contactLabel}>LinkedIn</div>
-              <div style={styles.contactVal}>krishiv-mangal</div>
+            <a href={personal.linkedin} target="_blank" rel="noreferrer"
+              className="rounded-xl p-4 sm:p-5 card-hover block no-underline"
+              style={{ background: "var(--card)", border: "1px solid var(--border)", textDecoration: "none" }}>
+              <span className="text-2xl block mb-3 font-display font-bold" style={{ fontSize: 20 }}>in</span>
+              <p className="text-xs font-bold uppercase tracking-widest mb-1 font-body" style={{ color: "var(--ink-4)" }}>LinkedIn</p>
+              <p className="text-xs font-semibold font-body" style={{ color: "var(--ink)" }}>Connect</p>
             </a>
-            <div style={styles.contactCard}>
-              <div style={styles.contactIcon}>📍</div>
-              <div style={styles.contactLabel}>Location</div>
-              <div style={styles.contactVal}>{personal.location}</div>
+            <div className="rounded-xl p-4 sm:p-5 card-hover" style={{ background: "var(--card)", border: "1px solid var(--border)" }}>
+              <span className="text-2xl block mb-3">📍</span>
+              <p className="text-xs font-bold uppercase tracking-widest mb-1 font-body" style={{ color: "var(--ink-4)" }}>Location</p>
+              <p className="text-xs font-semibold font-body" style={{ color: "var(--ink)" }}>Pilani, India</p>
             </div>
-            <button style={{ ...styles.contactCard, cursor: "pointer", border: "2px solid #111" }} onClick={() => setChatOpen(true)}>
-              <div style={styles.contactIcon}>✦</div>
-              <div style={styles.contactLabel}>AI Chat</div>
-              <div style={styles.contactVal}>Ask anything</div>
+            <a href="tel:+919425759603"
+              className="rounded-xl p-4 sm:p-5 card-hover block no-underline"
+              style={{ background: "var(--card)", border: "1px solid var(--border)", textDecoration: "none" }}>
+              <span className="text-2xl block mb-3">📞</span>
+              <p className="text-xs font-bold uppercase tracking-widest mb-1 font-body" style={{ color: "var(--ink-4)" }}>Phone</p>
+              <p className="text-xs font-semibold font-body" style={{ color: "var(--ink)" }}>+91 94257 59603</p>
+            </a>
+            <button onClick={() => setChatOpen(true)}
+              className="rounded-xl p-4 sm:p-5 text-left card-hover"
+              style={{ background: "var(--primary-bg)", color: "var(--primary-text)" }}>
+              <span className="text-2xl block mb-3">✦</span>
+              <p className="text-xs font-bold uppercase tracking-widest mb-1 font-body" style={{ color: "var(--primary-text)", opacity: 0.5 }}>AI Chat</p>
+              <p className="text-xs font-semibold font-body">Ask anything</p>
             </button>
           </div>
         </section>
 
       </main>
 
-      {/* FOOTER */}
-      <footer style={styles.footer}>
-        <div style={styles.footerInner}>
-          <div style={styles.footerBrand}>Krishiv Mangal</div>
-          <div style={styles.footerTag}>Built with React + Claude API · CAARYA AI Track</div>
+      {/* ── FOOTER ── */}
+      <footer style={{ background: "var(--ink)", borderTop: "1px solid #1c1c1c" }}>
+        <div className="max-w-5xl mx-auto px-4 sm:px-8 py-6 flex flex-col sm:flex-row justify-between items-center gap-2">
+          <p className="font-display font-bold text-white">Krishiv Mangal</p>
+          <p className="text-xs font-body" style={{ color: "rgba(255,255,255,0.3)" }}>Built with React + Groq · CAARYA AI Track · 2026</p>
         </div>
       </footer>
 
-      {/* FLOATING CHAT BUTTON */}
-      <button style={styles.fab} onClick={() => setChatOpen(true)}>
-        <span style={{ fontSize: 22 }}>✦</span>
-        <span style={{ fontSize: 13, fontWeight: 700 }}>Ask AI</span>
+      {/* ── FAB ── */}
+      <button onClick={() => setChatOpen(true)}
+        className="fixed bottom-5 right-5 z-40 rounded-2xl px-4 py-3 flex items-center gap-2 text-sm font-semibold font-body transition-opacity hover:opacity-80"
+        style={{ background: "var(--primary-bg)", color: "var(--primary-text)", boxShadow: "0 8px 32px rgba(0,0,0,0.25)" }}>
+        <span>✦</span> Ask AI
       </button>
 
       <Chat isOpen={chatOpen} onClose={() => setChatOpen(false)} />
     </div>
   );
 }
-
-/* ─── STYLES ─────────────────────────────────────────────────── */
-const styles = {
-  root: { fontFamily: "'Instrument Sans', 'DM Sans', system-ui, sans-serif", color: "#111", background: "#fafaf8", minHeight: "100vh" },
-  nav: { position: "sticky", top: 0, zIndex: 100, background: "rgba(250,250,248,0.92)", backdropFilter: "blur(12px)", borderBottom: "1px solid #e8e8e4" },
-  navInner: { maxWidth: 900, margin: "0 auto", padding: "0 24px", height: 56, display: "flex", alignItems: "center", gap: 24 },
-  navBrand: { fontWeight: 900, fontSize: 16, letterSpacing: "-0.03em", marginRight: "auto" },
-  navLinks: { display: "flex", gap: 4 },
-  navLink: { background: "none", border: "none", padding: "6px 10px", fontSize: 13, color: "#888", cursor: "pointer", borderRadius: 6, textTransform: "capitalize", fontFamily: "inherit" },
-  navLinkActive: { color: "#111", fontWeight: 600, background: "#f0f0ec" },
-  chatNavBtn: { background: "#111", color: "#fff", border: "none", borderRadius: 8, padding: "8px 16px", fontSize: 13, fontWeight: 700, cursor: "pointer", letterSpacing: "-0.01em", fontFamily: "inherit" },
-
-  hero: { background: "#fff", borderBottom: "1px solid #e8e8e4", padding: "80px 24px 64px" },
-  heroInner: { maxWidth: 900, margin: "0 auto", display: "flex", gap: 48, alignItems: "flex-start", flexWrap: "wrap" },
-  heroLeft: { flex: "1 1 480px" },
-  heroRight: { flex: "0 0 220px" },
-  heroPill: { display: "inline-block", background: "#f0f0ec", border: "1px solid #e0e0da", borderRadius: 20, padding: "4px 12px", fontSize: 12, fontWeight: 600, color: "#666", marginBottom: 16, letterSpacing: "0.02em" },
-  heroName: { fontSize: 52, fontWeight: 900, letterSpacing: "-0.04em", lineHeight: 1.05, margin: "0 0 12px" },
-  heroTagline: { fontSize: 18, color: "#666", lineHeight: 1.5, margin: "0 0 20px", fontWeight: 400 },
-  heroBio: { fontSize: 14.5, color: "#555", lineHeight: 1.75, margin: "0 0 32px", maxWidth: 500 },
-  heroActions: { display: "flex", gap: 12, flexWrap: "wrap" },
-  primaryBtn: { background: "#111", color: "#fff", border: "none", borderRadius: 10, padding: "12px 24px", fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "inherit", letterSpacing: "-0.01em" },
-  outlineBtn: { display: "flex", alignItems: "center", background: "transparent", color: "#111", border: "1.5px solid #ddd", borderRadius: 10, padding: "12px 20px", fontSize: 14, fontWeight: 600, cursor: "pointer", textDecoration: "none", fontFamily: "inherit" },
-  heroCard: { background: "#111", borderRadius: 16, padding: "20px 24px", color: "#fff" },
-  heroCardRow: { display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 0" },
-  heroCardLabel: { fontSize: 12, color: "rgba(255,255,255,0.5)", fontWeight: 500 },
-  heroCardVal: { fontSize: 18, fontWeight: 900, letterSpacing: "-0.02em" },
-  heroCardDivider: { height: 1, background: "rgba(255,255,255,0.08)" },
-
-  main: { maxWidth: 900, margin: "0 auto", padding: "0 24px" },
-  section: { padding: "64px 0" },
-  sectionLabel: { fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "#999", marginBottom: 12 },
-  sectionTitle: { fontSize: 34, fontWeight: 900, letterSpacing: "-0.03em", margin: "0 0 28px", lineHeight: 1.1 },
-  para: { fontSize: 15, color: "#555", lineHeight: 1.75, margin: "0 0 16px" },
-  divider: { height: 1, background: "#eee", margin: "0" },
-
-  projectCard: { background: "#fff", border: "1px solid #e8e8e4", borderRadius: 14, padding: "28px 28px 24px", marginBottom: 24 },
-  projectHeader: { marginBottom: 16 },
-  projectTitle: { fontSize: 20, fontWeight: 800, letterSpacing: "-0.02em", margin: "0 0 4px" },
-  projectMeta: { fontSize: 13, color: "#999", fontWeight: 500 },
-  bulletList: { listStyle: "none", padding: 0, margin: "0 0 16px" },
-  bullet: { display: "flex", gap: 10, alignItems: "flex-start", fontSize: 14, color: "#555", lineHeight: 1.7, padding: "5px 0", borderBottom: "1px solid #f5f5f5" },
-  bulletDot: { color: "#999", flexShrink: 0, marginTop: 3, fontSize: 12 },
-  tagRow: { display: "flex", flexWrap: "wrap", gap: 6, marginTop: 4 },
-  tag: { background: "#f3f3ef", border: "1px solid #e8e8e4", borderRadius: 20, padding: "3px 10px", fontSize: 12, color: "#555", fontWeight: 500 },
-  tagAccent: { background: "#111", color: "#fff", border: "1px solid #111" },
-
-  skillsGrid: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 16 },
-  skillCard: { background: "#fff", border: "1px solid #e8e8e4", borderRadius: 12, padding: "20px 20px 16px" },
-  skillCat: { fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#aaa", marginBottom: 10 },
-
-  eduRow: { display: "flex", gap: 20, marginBottom: 0 },
-  eduLeft: { display: "flex", flexDirection: "column", alignItems: "center", width: 20, flexShrink: 0 },
-  eduDot: { width: 14, height: 14, borderRadius: "50%", background: "#111", flexShrink: 0, marginTop: 4 },
-  eduLine: { flex: 1, width: 2, background: "#e8e8e4", margin: "6px 0" },
-  eduRight: { paddingBottom: 32, flex: 1 },
-  eduDegree: { fontSize: 16, fontWeight: 800, letterSpacing: "-0.01em", marginBottom: 2 },
-  eduInst: { fontSize: 14, color: "#666", marginBottom: 4 },
-  eduMeta: { fontSize: 13, color: "#aaa", fontWeight: 500 },
-
-  achieveCard: { display: "flex", gap: 16, background: "#fff", border: "1px solid #e8e8e4", borderRadius: 12, padding: "20px 24px", marginBottom: 16 },
-  achieveIcon: { width: 36, height: 36, borderRadius: 8, background: "#f0f0ec", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, flexShrink: 0, fontWeight: 700 },
-  achieveTitle: { fontSize: 15, fontWeight: 800, letterSpacing: "-0.01em", marginBottom: 2 },
-  achieveMeta: { fontSize: 12, color: "#aaa", fontWeight: 500, marginBottom: 4 },
-
-  contactGrid: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 14 },
-  contactCard: { background: "#fff", border: "1px solid #e8e8e4", borderRadius: 12, padding: "20px 20px 18px", textDecoration: "none", color: "#111", display: "block", transition: "border-color 0.2s", fontFamily: "inherit", textAlign: "left" },
-  contactIcon: { fontSize: 22, marginBottom: 10, display: "block" },
-  contactLabel: { fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#aaa", marginBottom: 4 },
-  contactVal: { fontSize: 13.5, fontWeight: 600, color: "#111", wordBreak: "break-all" },
-
-  footer: { background: "#111", marginTop: 80 },
-  footerInner: { maxWidth: 900, margin: "0 auto", padding: "24px 24px", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 },
-  footerBrand: { fontSize: 15, fontWeight: 800, color: "#fff", letterSpacing: "-0.02em" },
-  footerTag: { fontSize: 12, color: "rgba(255,255,255,0.4)" },
-
-  fab: { position: "fixed", bottom: 28, right: 28, background: "#111", color: "#fff", border: "none", borderRadius: 50, padding: "14px 20px", display: "flex", flexDirection: "column", alignItems: "center", gap: 2, cursor: "pointer", zIndex: 90, boxShadow: "0 4px 24px rgba(0,0,0,0.25)", fontFamily: "inherit" },
-
-  chatOverlay: { position: "fixed", inset: 0, background: "rgba(0,0,0,0.4)", zIndex: 200, display: "flex", alignItems: "flex-end", justifyContent: "flex-end", padding: 28 },
-  chatPanel: { background: "#fff", borderRadius: 18, width: 380, maxWidth: "100%", height: 560, display: "flex", flexDirection: "column", overflow: "hidden", border: "1px solid #e0e0da" },
-  chatHeader: { background: "#111", padding: "14px 18px", display: "flex", alignItems: "center", justifyContent: "space-between" },
-  avatarSmall: { width: 36, height: 36, borderRadius: "50%", background: "rgba(255,255,255,0.15)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: 13 },
-  chatName: { color: "#fff", fontWeight: 700, fontSize: 14 },
-  chatStatus: { color: "#4ade80", fontSize: 11, fontWeight: 500 },
-  closeBtn: { background: "none", border: "none", color: "rgba(255,255,255,0.6)", cursor: "pointer", fontSize: 18, padding: 4, fontFamily: "inherit" },
-  chatMessages: { flex: 1, overflowY: "auto", padding: "16px 14px", display: "flex", flexDirection: "column" },
-  userBubble: { background: "#111", color: "#fff", borderRadius: "14px 14px 4px 14px", padding: "10px 14px", fontSize: 14, maxWidth: "80%", lineHeight: 1.5 },
-  aiBubble: { background: "#f3f3ef", color: "#111", borderRadius: "14px 14px 14px 4px", padding: "10px 14px", fontSize: 14, maxWidth: "82%", lineHeight: 1.6 },
-  typing: { color: "#aaa", letterSpacing: 3, animation: "none" },
-  suggestions: { display: "flex", flexDirection: "column", gap: 6, marginTop: 8 },
-  suggBtn: { background: "#fff", border: "1px solid #e0e0da", borderRadius: 8, padding: "8px 12px", fontSize: 12.5, color: "#555", cursor: "pointer", textAlign: "left", fontFamily: "inherit", fontWeight: 500 },
-  chatInput: { padding: "12px 14px", borderTop: "1px solid #eee", display: "flex", gap: 8 },
-  inputBox: { flex: 1, background: "#f5f5f2", border: "1px solid #e8e8e4", borderRadius: 10, padding: "10px 14px", fontSize: 14, outline: "none", fontFamily: "inherit", color: "#111" },
-  sendBtn: { background: "#111", color: "#fff", border: "none", borderRadius: 10, padding: "10px 16px", fontSize: 18, cursor: "pointer", fontFamily: "inherit" },
-};
