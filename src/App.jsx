@@ -6,32 +6,23 @@ const SYSTEM_PROMPT = `You are an AI assistant embedded in Krishiv Mangal's pers
 
 KRISHIV'S DATA — answer ONLY from this, never invent anything:
 ---
-PERSONAL:
-- Name: Krishiv Mangal
-- Location: Pilani, Rajasthan, India
-- Email: f20241307@pilani.bits-pilani.ac.in
-- Phone: +91-9425759603
-- LinkedIn: https://www.linkedin.com/in/krishiv-mangal-20298b335
-- GitHub: https://github.com/krishivmangal
-
-EDUCATION:
-1. B.E. Mathematics and Computing — BITS Pilani (2024–2028 expected)
-   - Current CGPA: 8.81 | Year 1 CGPA: 9.7 (among highest in 2024 batch)
-   - Coursework: Probability & Statistics, Linear Algebra, Data Structures, Stochastic Calculus & Finance, Optimization, Discrete Mathematics, Real Analysis, Differential Equations, OOP, Complex Analysis
-2. Class XII (CBSE) — The Shishukunj International School, Indore — Score: 94.4% (2023–2024)
-3. Class X (CBSE) — The Shishukunj International School, Indore — Score: 97.4% (2021–2022)
+Name: Krishiv Mangal
+College: BITS Pilani — B.E. Mathematics and Computing, 2024–2028, Current CGPA: 8.81
+Year 1 CGPA: 9.7 — among the highest performers in the 2024 batch; earned branch transfer from Civil Engineering to Math & Computing
+Email: f20241307@pilani.bits-pilani.ac.in
+LinkedIn: https://www.linkedin.com/in/krishiv-mangal-20298b335
+Location: Pilani, Rajasthan, India
 
 ACHIEVEMENTS:
 - Branch Transfer Civil→Math&Computing: Achieved 9.7 CGPA in Year 1, among highest performers in 2024 batch
 - Merit Scholarships 2 consecutive semesters: 50% BITS69 + 50% MCN in Sem2 (full tuition waiver); 100% MCN in Sem3 — one of very few students to receive full scholarships in consecutive semesters
 
-PROJECTS:
-1. Option Pricing and Risk Analytics Engine (Jan–Apr 2026, BITS Pilani) — Live: https://fram-sigma.vercel.app
-   Stack: Python, NumPy, Pandas, SciPy, Matplotlib, yfinance, arch/GARCH, Jupyter Notebooks
-   - Automated data pipeline for all Nifty 50 stocks using yfinance + Pandas; NumPy vectorized ops for volatility metrics
-   - Black-Scholes-Merton pricing model from scratch; GARCH volatility forecasting via arch library
-   - Scenario analysis engine: 4×4 price/volatility shock grid; Greeks (Delta, Gamma, Vega) via finite-difference methods
-   - 3-model VaR: Parametric, GARCH-based, Monte Carlo at 95% and 99% confidence levels
+PROJECT — Option Pricing and Risk Analytics Engine (Jan–Apr 2026, BITS Pilani):
+Stack: Python, NumPy, Pandas, SciPy, Matplotlib, yfinance, arch/GARCH, Jupyter Notebooks
+- Automated data pipeline for all Nifty 50 stocks using yfinance + Pandas; NumPy vectorized ops for volatility metrics
+- Black-Scholes-Merton pricing model from scratch; GARCH volatility forecasting via arch library
+- Scenario analysis engine: 4×4 price/volatility shock grid; Greeks (Delta, Gamma, Vega) via finite-difference methods
+- 3-model VaR: Parametric, GARCH-based, Monte Carlo at 95% and 99% confidence levels
 
 SKILLS:
 - Programming Languages: Java, C, C++
@@ -40,19 +31,19 @@ SKILLS:
 - Mathematics: Stochastic Processes, Financial Mathematics, Probability Theory, Combinatorics, Linear Algebra
 - Languages: English (Proficient), Hindi (Native)
 
-VOLUNTEERING:
-- Active Member, UMANG Vertical — NSS, BITS Pilani (Aug 2024–present)
-  - Provides financial scholarships and mentorship to underprivileged students
-  - Fundraising drives, community outreach, rural awareness campaigns, on-campus social welfare events
+COURSEWORK: Probability & Statistics, Linear Algebra, Data Structures, Stochastic Calculus & Finance, Optimization, Discrete Mathematics, Real Analysis, Differential Equations, OOP, Complex Analysis
+
+VOLUNTEERING: NSS UMANG Vertical, BITS Pilani (Aug 2024–present)
+- Scholarships & mentorship for underprivileged students; fundraising and community outreach drives
 ---
 
 BEHAVIOUR RULES:
-1. GROUNDING — Only state facts from the data above. Never invent anything.
+1. GROUNDING — Only state facts from the data above. If not in the data, say "I don't have that info — reach Krishiv at f20241307@pilani.bits-pilani.ac.in"
 2. RELEVANCE — Be concise and focused. No padding or filler sentences.
-3. CONTEXT AWARENESS — You have the full conversation history. Don't repeat information already given.
+3. CONTEXT AWARENESS — You have the full conversation history. Don't repeat information already given. Build on it.
 4. EDGE CASES:
    - Off-topic / general knowledge questions → "I'm specifically here to answer questions about Krishiv — ask me about his projects, skills, or background!"
-   - Contact requests → provide email, phone, and LinkedIn
+   - Contact requests → provide email and LinkedIn
    - Inappropriate questions → decline professionally and redirect
 5. TONE — Warm, smart, professional. Like a well-informed colleague representing Krishiv.`;
 
@@ -70,21 +61,71 @@ function Chat({ isOpen, onClose }) {
   const [messages, setMessages] = useState(INITIAL_MESSAGE);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [listening, setListening] = useState(false);
+  const [ttsEnabled, setTtsEnabled] = useState(true);
   const bottomRef = useRef(null);
   const inputRef = useRef(null);
+  const recognitionRef = useRef(null);
+
+  // Check browser support
+  const SpeechRecognition = typeof window !== "undefined" && (window.SpeechRecognition || window.webkitSpeechRecognition);
+  const hasSpeech = !!SpeechRecognition;
 
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages, loading]);
   useEffect(() => {
     if (isOpen) {
       setMessages(INITIAL_MESSAGE);
       setInput("");
+      setListening(false);
+      window.speechSynthesis?.cancel();
       setTimeout(() => inputRef.current?.focus(), 120);
+    } else {
+      // Stop recognition and TTS when closed
+      recognitionRef.current?.stop();
+      window.speechSynthesis?.cancel();
     }
   }, [isOpen]);
+
+  const speak = (text) => {
+    if (!ttsEnabled || !window.speechSynthesis) return;
+    window.speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.rate = 1.05;
+    utter.pitch = 1;
+    // Pick a natural English voice if available
+    const voices = window.speechSynthesis.getVoices();
+    const preferred = voices.find(v => v.lang.startsWith("en") && v.localService);
+    if (preferred) utter.voice = preferred;
+    window.speechSynthesis.speak(utter);
+  };
+
+  const toggleListening = () => {
+    if (!hasSpeech) return;
+    if (listening) {
+      recognitionRef.current?.stop();
+      setListening(false);
+      return;
+    }
+    const recog = new SpeechRecognition();
+    recog.lang = "en-US";
+    recog.interimResults = false;
+    recog.maxAlternatives = 1;
+    recog.onresult = (e) => {
+      const transcript = e.results[0][0].transcript;
+      setListening(false);
+      send(transcript);
+    };
+    recog.onerror = () => setListening(false);
+    recog.onend = () => setListening(false);
+    recognitionRef.current = recog;
+    recog.start();
+    setListening(true);
+  };
 
   const send = async (text) => {
     const msg = (text ?? input).trim();
     if (!msg || loading) return;
+    window.speechSynthesis?.cancel();
     setInput("");
     const updated = [...messages, { role: "user", content: msg }];
     setMessages(updated);
@@ -107,7 +148,9 @@ function Chat({ isOpen, onClose }) {
       });
       if (!res.ok) { const e = await res.json(); console.error(e); throw new Error(); }
       const data = await res.json();
-      setMessages((p) => [...p, { role: "assistant", content: data.choices?.[0]?.message?.content || "Sorry, try again." }]);
+      const reply = data.choices?.[0]?.message?.content || "Sorry, try again.";
+      setMessages((p) => [...p, { role: "assistant", content: reply }]);
+      speak(reply);
     } catch {
       setMessages((p) => [...p, { role: "assistant", content: "Something went wrong. Please try again." }]);
     }
@@ -126,10 +169,21 @@ function Chat({ isOpen, onClose }) {
             <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white font-display" style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.12)" }}>KM</div>
             <div>
               <p className="text-white text-sm font-semibold font-display">Krishiv's AI</p>
-              <p className="text-xs" style={{ color: "#4ade80" }}>● Ready</p>
+              <p className="text-xs" style={{ color: listening ? "#facc15" : "#4ade80" }}>
+                {listening ? "● Listening..." : "● Ready"}
+              </p>
             </div>
           </div>
-          <button onClick={onClose} className="text-white/40 hover:text-white/80 transition-colors text-lg w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/5">✕</button>
+          <div className="flex items-center gap-2">
+            {/* TTS toggle */}
+            <button onClick={() => { window.speechSynthesis?.cancel(); setTtsEnabled(p => !p); }}
+              title={ttsEnabled ? "Mute AI voice" : "Unmute AI voice"}
+              className="text-lg w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/10 transition-colors"
+              style={{ color: ttsEnabled ? "rgba(255,255,255,0.8)" : "rgba(255,255,255,0.25)" }}>
+              {ttsEnabled ? "🔊" : "🔇"}
+            </button>
+            <button onClick={onClose} className="text-white/40 hover:text-white/80 transition-colors text-lg w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/5">✕</button>
+          </div>
         </div>
 
         {/* Messages */}
@@ -176,13 +230,27 @@ function Chat({ isOpen, onClose }) {
             <input ref={inputRef} value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && send()}
-              placeholder="Ask about Krishiv..."
+              placeholder={listening ? "Listening..." : "Ask about Krishiv..."}
               className="flex-1 text-sm px-3 py-2 bg-transparent outline-none font-body"
               style={{ color: "var(--ink)" }} />
+            {/* Mic button — only shown if browser supports it */}
+            {hasSpeech && (
+              <button onClick={toggleListening} disabled={loading}
+                title={listening ? "Stop listening" : "Speak your question"}
+                className="w-8 h-8 rounded-lg text-sm flex items-center justify-center transition-all disabled:opacity-30 flex-shrink-0"
+                style={{ background: listening ? "#ef4444" : "rgba(10,10,10,0.08)", color: listening ? "#fff" : "var(--ink-3)" }}>
+                🎤
+              </button>
+            )}
             <button onClick={() => send()} disabled={loading || !input.trim()}
               className="w-8 h-8 rounded-lg text-white text-sm flex items-center justify-center transition-all disabled:opacity-30 hover:opacity-80 flex-shrink-0"
               style={{ background: "var(--ink)" }}>↑</button>
           </div>
+          {hasSpeech && (
+            <p className="text-center text-xs mt-2 font-body" style={{ color: "var(--ink-4)" }}>
+              🎤 tap to speak · 🔊 tap to toggle AI voice
+            </p>
+          )}
         </div>
       </div>
     </div>
@@ -396,7 +464,7 @@ export default function App() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {Object.entries(skills).map(([cat, items]) => (
               <div key={cat} className="rounded-xl p-5 card-hover" style={{ background: "var(--card)", border: "1px solid var(--border)" }}>
-                <p className="text-xs font-bold tracking-[0.12em] uppercase mb-3 font-body" style={{ color: "var(--ink)" }}>{cat}</p>
+                <p className="text-xs font-bold tracking-[0.12em] uppercase mb-3 font-body" style={{ color: "var(--ink-4)" }}>{cat}</p>
                 <div className="flex flex-wrap gap-1.5">
                   {items.map((s) => <Tag key={s} label={s} />)}
                 </div>
