@@ -37,6 +37,48 @@ src/
 
 ---
 
+## Setup
+
+### 1. Clone and install
+
+```bash
+git clone https://github.com/Krishiv-Mangal/krishiv-portfolio.git
+cd krishiv-portfolio
+npm install
+```
+
+### 2. Get a Groq API key
+
+- Go to https://console.groq.com
+- Create an account → API Keys → Create API Key
+- Copy the key (starts with `gsk_...`)
+
+### 3. Add your API key
+
+Create a `.env` file in the root:
+
+```
+VITE_GROQ_API_KEY=gsk_YOUR_KEY_HERE
+```
+
+### 4. Run locally
+
+```bash
+npm run dev
+```
+
+Open http://localhost:5173
+
+### 5. Build for production
+
+```bash
+npm run build
+```
+
+Deploy the `dist/` folder to Vercel. Add `VITE_GROQ_API_KEY` in Vercel → Settings → Environment Variables.
+
+---
+
 ## Personalising for your own use
 
 Edit `src/data/portfolio.js` to change name, bio, projects, skills, and achievements.
