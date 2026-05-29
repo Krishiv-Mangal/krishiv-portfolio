@@ -194,7 +194,7 @@ function Chat({ isOpen, onClose }) {
                 <div className="w-6 h-6 rounded-full flex-shrink-0 mt-0.5 flex items-center justify-center text-white text-xs font-bold font-display" style={{ background: "var(--ink)" }}>✦</div>
               )}
               <div className={`text-sm leading-relaxed px-4 py-3 max-w-[78%] rounded-2xl ${m.role === "user" ? "text-white rounded-br-sm" : "rounded-bl-sm"}`}
-                style={m.role === "user" ? { background: "var(--ink)" } : { background: "#f3f2ef", color: "var(--ink)" }}>
+                style={m.role === "user" ? { background: "var(--ink)" } : { background: "var(--card)", color: "var(--ink)" }}>
                 {m.content}
               </div>
             </div>
@@ -203,7 +203,7 @@ function Chat({ isOpen, onClose }) {
           {loading && (
             <div className="flex gap-2 justify-start">
               <div className="w-6 h-6 rounded-full flex-shrink-0 mt-0.5 flex items-center justify-center text-white text-xs font-bold font-display" style={{ background: "var(--ink)" }}>✦</div>
-              <div className="px-4 py-3 rounded-2xl rounded-bl-sm flex gap-1.5 items-center" style={{ background: "#f3f2ef" }}>
+              <div className="px-4 py-3 rounded-2xl rounded-bl-sm flex gap-1.5 items-center" style={{ background: "var(--card)" }}>
                 <span className="dot" /><span className="dot" /><span className="dot" />
               </div>
             </div>
@@ -226,7 +226,7 @@ function Chat({ isOpen, onClose }) {
 
         {/* Input */}
         <div className="p-3" style={{ borderTop: "1px solid var(--border)" }}>
-          <div className="flex gap-2 items-end rounded-xl p-1" style={{ background: "#f3f2ef" }}>
+          <div className="flex gap-2 items-end rounded-xl p-1" style={{ background: "var(--card)" }}>
             <input ref={inputRef} value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && send()}
@@ -260,7 +260,7 @@ function Chat({ isOpen, onClose }) {
 /* ─── UI ATOMS ──────────────────────────────────────────────────── */
 const Tag = ({ label }) => (
   <span className="inline-flex items-center text-xs px-2.5 py-1 rounded-lg font-medium"
-    style={{ background: "#f0efea", color: "var(--ink-2)", border: "1px solid var(--border)" }}>
+    style={{ background: "var(--surface)", color: "var(--ink-2)", border: "1px solid var(--border)" }}>
     {label}
   </span>
 );
@@ -344,7 +344,7 @@ export default function App() {
             {navItems.map((id) => (
               <button key={id} onClick={() => scrollTo(id)}
                 className="block w-full text-left px-3 py-2.5 text-sm font-medium capitalize rounded-lg mb-1 font-body"
-                style={{ color: activeNav === id ? "var(--ink)" : "var(--ink-3)", background: activeNav === id ? "#eeecea" : "transparent" }}>
+                style={{ color: activeNav === id ? "var(--ink)" : "var(--ink-3)", background: activeNav === id ? "var(--surface)" : "transparent" }}>
                 {id}
               </button>
             ))}
@@ -399,7 +399,7 @@ export default function App() {
               ["2028", "Expected Grad"],
             ].map(([val, label]) => (
               <div key={label} className="rounded-xl p-4 card-hover" style={{ background: "var(--card)", border: "1px solid var(--border)" }}>
-                <p className="font-display font-bold text-2xl sm:text-3xl mb-1" style={{ letterSpacing: "-0.03em" }}>{val}</p>
+                <p className="font-display font-bold text-2xl sm:text-3xl mb-1" style={{ letterSpacing: "-0.03em", color: "var(--ink)" }}>{val}</p>
                 <p className="text-xs font-body" style={{ color: "var(--ink-3)" }}>{label}</p>
               </div>
             ))}
@@ -428,7 +428,7 @@ export default function App() {
               <div className="px-6 pt-6 pb-5 sm:px-8 sm:pt-8" style={{ borderBottom: "1px solid var(--border)" }}>
                 <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
                   <div>
-                    <div className="flex items-center gap-3 mb-1"><h3 className="font-display font-bold text-xl sm:text-2xl" style={{ letterSpacing: "-0.02em" }}>{p.title}</h3>{p.url && (<a href={p.url} target="_blank" rel="noreferrer" className="text-xs font-semibold px-2.5 py-1 rounded-lg font-body flex-shrink-0" style={{ background: "var(--ink)", color: "#fff", textDecoration: "none" }}>Live ↗</a>)}</div>
+                    <div className="flex items-center gap-3 mb-1"><h3 className="font-display font-bold text-xl sm:text-2xl" style={{ letterSpacing: "-0.02em", color: "var(--ink)" }}>{p.title}</h3>{p.url && (<a href={p.url} target="_blank" rel="noreferrer" className="text-xs font-semibold px-2.5 py-1 rounded-lg font-body flex-shrink-0" style={{ background: "var(--ink)", color: "#fff", textDecoration: "none" }}>Live ↗</a>)}</div>
                     <p className="text-xs font-body" style={{ color: "var(--ink-4)" }}>{p.context} · {p.duration}</p>
                   </div>
                   <div className="flex flex-wrap gap-1.5 sm:text-right">
@@ -484,7 +484,7 @@ export default function App() {
               <div key={i} className="relative pb-10 last:pb-0">
                 <div className="absolute -left-[25px] w-3 h-3 rounded-full mt-1.5" style={{ background: i === 0 ? "var(--ink)" : "var(--border)", border: "2px solid var(--surface)" }} />
                 <div className="rounded-xl p-5 sm:p-6 card-hover" style={{ background: "var(--card)", border: "1px solid var(--border)" }}>
-                  <h3 className="font-display font-bold text-base sm:text-lg mb-0.5" style={{ letterSpacing: "-0.01em" }}>{e.degree}</h3>
+                  <h3 className="font-display font-bold text-base sm:text-lg mb-0.5" style={{ letterSpacing: "-0.01em", color: "var(--ink)" }}>{e.degree}</h3>
                   <p className="text-sm mb-2 font-body" style={{ color: "var(--ink-2)" }}>{e.institution}</p>
                   <p className="text-xs font-body" style={{ color: "var(--ink-4)" }}>
                     {e.cgpa && `CGPA ${e.cgpa}`}{e.score && `Score: ${e.score}`}
@@ -512,7 +512,7 @@ export default function App() {
             {achievements.map((a, i) => (
               <div key={i} className="rounded-xl p-5 sm:p-6 card-hover" style={{ background: "var(--card)", border: "1px solid var(--border)" }}>
                 <div className="w-10 h-10 rounded-lg flex items-center justify-center text-lg mb-4" style={{ background: "var(--card)", border: "1px solid var(--border)" }}>★</div>
-                <h3 className="font-display font-bold text-sm sm:text-base mb-1" style={{ letterSpacing: "-0.01em" }}>{a.title}</h3>
+                <h3 className="font-display font-bold text-sm sm:text-base mb-1" style={{ letterSpacing: "-0.01em", color: "var(--ink)" }}>{a.title}</h3>
                 <p className="text-xs mb-3 font-body" style={{ color: "var(--ink-4)" }}>{a.duration}</p>
                 <p className="text-sm leading-relaxed font-body" style={{ color: "var(--ink-2)" }}>{a.description}</p>
               </div>
@@ -522,7 +522,7 @@ export default function App() {
                 <div className="flex gap-4">
                   <div className="w-10 h-10 rounded-lg flex items-center justify-center text-lg flex-shrink-0" style={{ background: "var(--primary-bg)", color: "var(--primary-text)" }}>♥</div>
                   <div>
-                    <h3 className="font-display font-bold text-sm sm:text-base mb-0.5" style={{ letterSpacing: "-0.01em" }}>{v.role}</h3>
+                    <h3 className="font-display font-bold text-sm sm:text-base mb-0.5" style={{ letterSpacing: "-0.01em", color: "var(--ink)" }}>{v.role}</h3>
                     <p className="text-xs mb-3 font-body" style={{ color: "var(--ink-4)" }}>{v.org} · {v.duration}</p>
                     <ul className="space-y-2">
                       {v.points.map((pt, j) => (
