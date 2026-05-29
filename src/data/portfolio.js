@@ -62,23 +62,10 @@ const portfolioData = {
   ],
   projects: [
     {
-      title: "FRAM — AI-Powered Web App",
-      duration: "May 2026",
-      context: "CAARYA AI Track",
-      url: "https://fram-sigma.vercel.app",
-      stack: ["React", "Vite", "Tailwind CSS", "Claude API"],
-      description:
-        "A fully deployed web application built as part of the CAARYA AI Track, showcasing end-to-end product development with AI integration.",
-      points: [
-        "Designed and built a complete React + Vite frontend with Tailwind CSS, deployed live on Vercel.",
-        "Integrated the Claude API to power intelligent, context-aware features within the application.",
-        "Delivered a production-ready product from scratch — covering UI design, AI integration, and cloud deployment.",
-      ],
-    },
-    {
       title: "Option Pricing and Risk Analytics Engine",
       duration: "Jan 2026 – Apr 2026",
       context: "BITS Pilani",
+      url: "https://fram-sigma.vercel.app",
       stack: ["Python", "NumPy", "Pandas", "SciPy", "Matplotlib", "yfinance", "arch (GARCH)", "Jupyter Notebooks"],
       description:
         "A modular quantitative finance system for pricing options on Nifty 50 stocks and computing portfolio risk metrics.",
