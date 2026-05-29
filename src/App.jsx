@@ -588,10 +588,10 @@ export default function App() {
       </main>
 
       {/* ── FOOTER ── */}
-      <footer style={{ background: "var(--ink)", borderTop: "1px solid #1c1c1c" }}>
+      <footer style={{ background: dark ? "#e8e6e1" : "var(--ink)", borderTop: "1px solid #1c1c1c" }}>
         <div className="max-w-5xl mx-auto px-4 sm:px-8 py-6 flex flex-col sm:flex-row justify-between items-center gap-2">
-          <p className="font-display font-bold text-white">Krishiv Mangal</p>
-          <p className="text-xs font-body" style={{ color: "rgba(255,255,255,0.3)" }}>Built with React + Groq · CAARYA AI Track · 2026</p>
+          <p className="font-display font-bold" style={{ color: dark ? "#111" : "#fff" }}>Krishiv Mangal</p>
+          <p className="text-xs font-body" style={{ color: dark ? "rgba(0,0,0,0.45)" : "rgba(255,255,255,0.3)" }}>Built with React + Groq · CAARYA AI Track · 2026</p>
         </div>
       </footer>
 
