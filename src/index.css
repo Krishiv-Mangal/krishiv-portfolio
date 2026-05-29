@@ -1,8 +1,8 @@
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap');
 
 :root {
   --ink: #0a0a0a;
@@ -88,7 +88,7 @@ h1,h2,h3,h4 { font-family: 'Syne', sans-serif; }
   box-shadow: 0 8px 32px rgba(0,0,0,0.08);
 }
 
-/* ── DARK MODE ── */
+/* â”€â”€ DARK MODE â”€â”€ */
 :root {
   --primary-bg:   #0a0a0a;
   --primary-text: #ffffff;
