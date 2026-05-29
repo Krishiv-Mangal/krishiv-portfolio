@@ -56,7 +56,7 @@ const SUGGESTIONS = [
 ];
 
 /* ─── CHAT PANEL ────────────────────────────────────────────────── */
-function Chat({ isOpen, onClose }) {
+function Chat({ isOpen, onClose, dark }) {
   const INITIAL_MESSAGE = [{ role: "assistant", content: "Hi! I'm Krishiv's portfolio AI. Ask me anything about his work, skills, or background." }];
   const [messages, setMessages] = useState(INITIAL_MESSAGE);
   const [input, setInput] = useState("");
@@ -159,14 +159,30 @@ function Chat({ isOpen, onClose }) {
 
   if (!isOpen) return null;
 
+  // Dark mode: black panel, white text. Light mode: white panel, black text.
+  const panelBg   = dark ? "#111"              : "#fff";
+  const headerBg  = dark ? "#000"              : "#111";
+  const msgAreaBg = dark ? "#111"              : "#fff";
+  const inputBg   = dark ? "#1a1a1a"           : "#f3f2ef";
+  const inputBorder= dark ? "#2a2a2a"          : "#e5e4e0";
+  const bubbleAI  = dark ? "#1e1e1e"           : "#f3f2ef";
+  const bubbleAIText = dark ? "#e5e5e5"        : "#111";
+  const bubbleUser   = dark ? "#333"           : "#111";
+  const suggBg    = dark ? "#1a1a1a"           : "#f9f8f6";
+  const suggBorder= dark ? "#2a2a2a"           : "#e5e4e0";
+  const suggText  = dark ? "#ccc"              : "#444";
+  const subtleText= dark ? "rgba(255,255,255,0.3)" : "rgba(0,0,0,0.35)";
+  const avBg      = dark ? "rgba(255,255,255,0.1)" : "rgba(255,255,255,0.15)";
+  const avBorder  = dark ? "rgba(255,255,255,0.12)" : "rgba(255,255,255,0.15)";
+
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-end p-3 sm:p-6 anim-fade-in" style={{ background: "rgba(10,10,10,0.5)", backdropFilter: "blur(4px)" }} onClick={onClose}>
-      <div className="flex flex-col overflow-hidden anim-slide-up w-full sm:w-[400px] bg-card rounded-2xl" style={{ height: "min(620px,88vh)", border: "1px solid var(--border)", boxShadow: "0 24px 64px rgba(0,0,0,0.18)" }} onClick={(e) => e.stopPropagation()}>
+      <div className="flex flex-col overflow-hidden anim-slide-up w-full sm:w-[400px] rounded-2xl" style={{ height: "min(620px,88vh)", background: panelBg, border: `1px solid ${suggBorder}`, boxShadow: "0 24px 64px rgba(0,0,0,0.28)" }} onClick={(e) => e.stopPropagation()}>
 
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4" style={{ background: "var(--ink)", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+        <div className="flex items-center justify-between px-5 py-4" style={{ background: headerBg, borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white font-display" style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.12)" }}>KM</div>
+            <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white font-display" style={{ background: avBg, border: `1px solid ${avBorder}` }}>KM</div>
             <div>
               <p className="text-white text-sm font-semibold font-display">Krishiv's AI</p>
               <p className="text-xs" style={{ color: listening ? "#facc15" : "#4ade80" }}>
@@ -175,7 +191,6 @@ function Chat({ isOpen, onClose }) {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            {/* TTS toggle */}
             <button onClick={() => { window.speechSynthesis?.cancel(); setTtsEnabled(p => !p); }}
               title={ttsEnabled ? "Mute AI voice" : "Unmute AI voice"}
               className="text-lg w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/10 transition-colors"
@@ -187,14 +202,16 @@ function Chat({ isOpen, onClose }) {
         </div>
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto slim-scroll px-4 py-4 flex flex-col gap-3">
+        <div className="flex-1 overflow-y-auto slim-scroll px-4 py-4 flex flex-col gap-3" style={{ background: msgAreaBg }}>
           {messages.map((m, i) => (
             <div key={i} className={`flex gap-2 ${m.role === "user" ? "justify-end" : "justify-start"} anim-fade-up`} style={{ animationDelay: `${i * 0.03}s` }}>
               {m.role === "assistant" && (
-                <div className="w-6 h-6 rounded-full flex-shrink-0 mt-0.5 flex items-center justify-center text-white text-xs font-bold font-display" style={{ background: "var(--ink)" }}>✦</div>
+                <div className="w-6 h-6 rounded-full flex-shrink-0 mt-0.5 flex items-center justify-center text-white text-xs font-bold font-display" style={{ background: "#111" }}>✦</div>
               )}
-              <div className={`text-sm leading-relaxed px-4 py-3 max-w-[78%] rounded-2xl ${m.role === "user" ? "text-white rounded-br-sm" : "rounded-bl-sm"}`}
-                style={m.role === "user" ? { background: "var(--ink)" } : { background: "var(--card)", color: "var(--ink)" }}>
+              <div className={`text-sm leading-relaxed px-4 py-3 max-w-[78%] rounded-2xl ${m.role === "user" ? "rounded-br-sm" : "rounded-bl-sm"}`}
+                style={m.role === "user"
+                  ? { background: bubbleUser, color: "#fff" }
+                  : { background: bubbleAI, color: bubbleAIText }}>
                 {m.content}
               </div>
             </div>
@@ -202,8 +219,8 @@ function Chat({ isOpen, onClose }) {
 
           {loading && (
             <div className="flex gap-2 justify-start">
-              <div className="w-6 h-6 rounded-full flex-shrink-0 mt-0.5 flex items-center justify-center text-white text-xs font-bold font-display" style={{ background: "var(--ink)" }}>✦</div>
-              <div className="px-4 py-3 rounded-2xl rounded-bl-sm flex gap-1.5 items-center" style={{ background: "var(--card)" }}>
+              <div className="w-6 h-6 rounded-full flex-shrink-0 mt-0.5 flex items-center justify-center text-white text-xs font-bold font-display" style={{ background: "#111" }}>✦</div>
+              <div className="px-4 py-3 rounded-2xl rounded-bl-sm flex gap-1.5 items-center" style={{ background: bubbleAI }}>
                 <span className="dot" /><span className="dot" /><span className="dot" />
               </div>
             </div>
@@ -211,11 +228,11 @@ function Chat({ isOpen, onClose }) {
 
           {messages.length === 1 && !loading && (
             <div className="mt-1 flex flex-col gap-2">
-              <p className="text-xs px-1" style={{ color: "var(--ink-4)" }}>Try asking:</p>
+              <p className="text-xs px-1" style={{ color: subtleText }}>Try asking:</p>
               {SUGGESTIONS.map((s, i) => (
                 <button key={i} onClick={() => send(s)}
-                  className="text-left text-xs px-3.5 py-2.5 rounded-xl border transition-all hover:border-ink-2 hover:bg-gray-50 font-body"
-                  style={{ border: "1px solid var(--border)", color: "var(--ink-2)", background: "var(--card)" }}>
+                  className="text-left text-xs px-3.5 py-2.5 rounded-xl transition-all font-body"
+                  style={{ border: `1px solid ${suggBorder}`, color: suggText, background: suggBg }}>
                   {s}
                 </button>
               ))}
@@ -225,29 +242,28 @@ function Chat({ isOpen, onClose }) {
         </div>
 
         {/* Input */}
-        <div className="p-3" style={{ borderTop: "1px solid var(--border)" }}>
-          <div className="flex gap-2 items-end rounded-xl p-1" style={{ background: "var(--card)" }}>
+        <div className="p-3" style={{ borderTop: `1px solid ${inputBorder}`, background: panelBg }}>
+          <div className="flex gap-2 items-end rounded-xl p-1" style={{ background: inputBg }}>
             <input ref={inputRef} value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && send()}
               placeholder={listening ? "Listening..." : "Ask about Krishiv..."}
               className="flex-1 text-sm px-3 py-2 bg-transparent outline-none font-body"
-              style={{ color: "var(--ink)" }} />
-            {/* Mic button — only shown if browser supports it */}
+              style={{ color: dark ? "#e5e5e5" : "#111" }} />
             {hasSpeech && (
               <button onClick={toggleListening} disabled={loading}
                 title={listening ? "Stop listening" : "Speak your question"}
                 className="w-8 h-8 rounded-lg text-sm flex items-center justify-center transition-all disabled:opacity-30 flex-shrink-0"
-                style={{ background: listening ? "#ef4444" : "rgba(10,10,10,0.08)", color: listening ? "#fff" : "var(--ink-3)" }}>
+                style={{ background: listening ? "#ef4444" : dark ? "rgba(255,255,255,0.08)" : "rgba(10,10,10,0.08)", color: listening ? "#fff" : dark ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.4)" }}>
                 🎤
               </button>
             )}
             <button onClick={() => send()} disabled={loading || !input.trim()}
               className="w-8 h-8 rounded-lg text-white text-sm flex items-center justify-center transition-all disabled:opacity-30 hover:opacity-80 flex-shrink-0"
-              style={{ background: "var(--ink)" }}>↑</button>
+              style={{ background: "#111" }}>↑</button>
           </div>
           {hasSpeech && (
-            <p className="text-center text-xs mt-2 font-body" style={{ color: "var(--ink-4)" }}>
+            <p className="text-center text-xs mt-2 font-body" style={{ color: subtleText }}>
               🎤 tap to speak · 🔊 tap to toggle AI voice
             </p>
           )}
@@ -602,7 +618,7 @@ export default function App() {
         <span>✦</span> Ask AI
       </button>
 
-      <Chat isOpen={chatOpen} onClose={() => setChatOpen(false)} />
+      <Chat isOpen={chatOpen} onClose={() => setChatOpen(false)} dark={dark} />
     </div>
   );
 }
