@@ -54,10 +54,10 @@ const portfolioData = {
         "Secured a branch change to the highly competitive Mathematics & Computing program based on exceptional first-year performance, achieving a 9.7 CGPA and placing among the highest performers in the 2024 batch.",
     },
     {
-      title: "Merit Scholarships: 2 Consecutive Semesters",
+      title: "Academic Scholarships: 2 Consecutive Semesters",
       duration: "Jan 2025 – Dec 2025",
       description:
-        "Awarded the 50% BITS69 Batch Scholarship (BITSAA) and 50% MCN Scholarship in Semester 2 (full tuition waiver). Retained the full 100% MCN Scholarship in Semester 3, one of very few students to receive full scholarships in consecutive semesters.",
+        "Awarded the 50% BITS69 Batch Scholarship (BITSAA) and 50% MCN (Merit-Cum-Need) Scholarship in Semester 2 (full tuition waiver). Retained the full 100% MCN Scholarship in Semester 3, one of very few students to receive full scholarships in consecutive semesters.",
     },
   ],
   projects: [
@@ -83,7 +83,6 @@ const portfolioData = {
     Tools: ["Git", "LaTeX", "Jupyter Notebook", "VS Code"],
     Mathematics: [
       "Stochastic Processes",
-      "Financial Mathematics",
       "Probability Theory",
       "Combinatorics",
       "Linear Algebra",
