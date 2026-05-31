@@ -15,7 +15,7 @@ Location: Pilani, Rajasthan, India
 
 ACHIEVEMENTS:
 - Branch Transfer Civil→Math&Computing: Achieved 9.7 CGPA in Year 1, among highest performers in 2024 batch
-- Academic Scholarships 2 consecutive semesters: 50% BITS69 + 50% MCN in Sem2 (full tuition waiver); 100% MCN in Sem3 — one of very few students to receive full merit-cum-need scholarships in consecutive semesters
+- Academic Scholarships 2 consecutive semesters: 50% BITS69 + 50% MCN in Sem2 (full tuition waiver); 100% MCN in Sem3 — one of very few students to receive full scholarships in consecutive semesters
 
 PROJECT — Option Pricing and Risk Analytics Engine (Jan–Apr 2026, BITS Pilani):
 Stack: Python, NumPy, Pandas, SciPy, Matplotlib, yfinance, arch/GARCH, Jupyter Notebooks
@@ -381,11 +381,8 @@ export default function App() {
             Krishiv<br /><span style={{ color: "var(--ink-3)" }}>Mangal</span>
           </h1>
 
-          <p className="hero-3 text-base sm:text-lg mb-4 font-body" style={{ color: "var(--ink-2)" }}>
+          <p className="hero-3 text-base sm:text-lg mb-10 font-body" style={{ color: "var(--ink-2)" }}>
             B.E. Mathematics & Computing, BITS Pilani
-          </p>
-          <p className="hero-4 text-sm sm:text-base leading-relaxed max-w-xl mb-10 font-body" style={{ color: "var(--ink-3)" }}>
-            {personal.bio}
           </p>
 
           <div className="hero-5 flex flex-wrap gap-3 mb-12">
@@ -429,20 +426,7 @@ export default function App() {
         <section id="about" className="py-16 sm:py-20">
           <SectionEyebrow>About</SectionEyebrow>
           <SectionHeading>Who I am</SectionHeading>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-2xl">
-            <div className="rounded-xl p-5 card-hover" style={{ background: "var(--card)", border: "1px solid var(--border)" }}>
-              <p className="text-xs font-bold tracking-widest uppercase mb-2 font-body" style={{ color: "var(--ink-4)" }}>Interests</p>
-              <p className="text-sm leading-relaxed font-body" style={{ color: "var(--ink-2)" }}>Quantitative finance, financial mathematics, stochastic modelling, and building data-driven systems where rigorous math meets real-world markets.</p>
-            </div>
-            <div className="rounded-xl p-5 card-hover" style={{ background: "var(--card)", border: "1px solid var(--border)" }}>
-              <p className="text-xs font-bold tracking-widest uppercase mb-2 font-body" style={{ color: "var(--ink-4)" }}>Currently</p>
-              <p className="text-sm leading-relaxed font-body" style={{ color: "var(--ink-2)" }}>Second year at BITS Pilani, deepening expertise in stochastic calculus, real analysis, and discrete mathematics while working on applied finance projects.</p>
-            </div>
-            <div className="rounded-xl p-5 card-hover sm:col-span-2" style={{ background: "var(--card)", border: "1px solid var(--border)" }}>
-              <p className="text-xs font-bold tracking-widest uppercase mb-2 font-body" style={{ color: "var(--ink-4)" }}>Background</p>
-              <p className="text-sm leading-relaxed font-body" style={{ color: "var(--ink-2)" }}>Transferred from Civil Engineering to Mathematics & Computing after achieving a 9.7 CGPA in Year 1 — placing among the highest performers in the 2024 batch. Recipient of academic scholarships in consecutive semesters.</p>
-            </div>
-          </div>
+          <p className="text-base sm:text-lg leading-relaxed max-w-2xl font-body" style={{ color: "var(--ink-2)" }}>{personal.bio}</p>
         </section>
 
         <div style={{ height: 1, background: "var(--border)" }} />
