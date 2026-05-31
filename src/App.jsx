@@ -15,7 +15,7 @@ Location: Pilani, Rajasthan, India
 
 ACHIEVEMENTS:
 - Branch Transfer Civil→Math&Computing: Achieved 9.7 CGPA in Year 1, among highest performers in 2024 batch
-- Academic Scholarships 2 consecutive semesters: 50% BITS69 + 50% MCN in Sem2 (full tuition waiver); 100% MCN in Sem3 — one of very few students to receive full scholarships in consecutive semesters
+- Academic Scholarships 2 consecutive semesters: 50% BITS69 + 50% MCN (Merit-Cum-Need) in Sem2 (full tuition waiver); 100% MCN in Sem3 — one of very few students to receive full scholarships in consecutive semesters
 
 PROJECT — Option Pricing and Risk Analytics Engine (Jan–Apr 2026, BITS Pilani):
 Stack: Python, NumPy, Pandas, SciPy, Matplotlib, yfinance, arch/GARCH, Jupyter Notebooks
