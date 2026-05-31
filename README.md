@@ -2,7 +2,7 @@
 
 A smart, client-facing portfolio where anyone can ask questions about my work, skills, and experience — powered by a real-time AI chatbot. Built as proof-of-work for the CAARYA AI Track.
 
-Live: [krishiv-portfolio.vercel.app](https://krishiv-portfolio-pec569a5c-krishiv-mangal-s-projects.vercel.app)](https://krishiv-portfolio-kfhywg2ov-krishiv-mangal-s-projects.vercel.app)
+Live: (https://krishiv-portfolio-pec569a5c-krishiv-mangal-s-projects.vercel.app)](https://krishiv-portfolio-kfhywg2ov-krishiv-mangal-s-projects.vercel.app)
 
 ---
 
