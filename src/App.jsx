@@ -406,7 +406,7 @@ export default function App() {
           {/* Stats row */}
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
             {[
-              ["8.81", "Current CGPA"],
+              ["8.68", "Current CGPA"],
               ["9.7", "Year 1 CGPA"],
               ["2×", "Academic Scholarships"],
               ["2028", "Expected Grad"],
