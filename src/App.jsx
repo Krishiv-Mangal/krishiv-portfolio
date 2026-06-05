@@ -7,7 +7,7 @@ const SYSTEM_PROMPT = `You are an AI assistant embedded in Krishiv Mangal's pers
 KRISHIV'S DATA — answer ONLY from this, never invent anything:
 ---
 Name: Krishiv Mangal
-College: BITS Pilani — B.E. Mathematics and Computing, 2024–2028, Current CGPA: 8.81
+College: BITS Pilani — B.E. Mathematics and Computing, 2024–2028, Current CGPA: 8.68
 Year 1 CGPA: 9.7 — among the highest performers in the 2024 batch; earned branch transfer from Civil Engineering to Math & Computing
 Email: f20241307@pilani.bits-pilani.ac.in
 LinkedIn: https://www.linkedin.com/in/krishiv-mangal-20298b335

@@ -6,7 +6,7 @@ const portfolioData = {
     location: "Pilani, Rajasthan, India",
     email: "f20241307@pilani.bits-pilani.ac.in",
     phone: "+91-9425759603",
-    cgpa: "8.81",
+    cgpa: "8.68",
     phone: "+91-9425759603",
     linkedin: "https://www.linkedin.com/in/krishiv-mangal-20298b335",
     github: "https://github.com/krishivmangal",
@@ -17,7 +17,7 @@ const portfolioData = {
       institution: "Birla Institute of Technology and Science (BITS Pilani)",
       location: "Pilani, India",
       duration: "2024 – 2028 (Expected)",
-      cgpa: "8.81",
+      cgpa: "8.68",
       coursework: [
         "Probability and Statistics",
         "Linear Algebra",

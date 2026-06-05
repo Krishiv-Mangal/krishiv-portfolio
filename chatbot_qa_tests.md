@@ -5,7 +5,7 @@
 **Q1 — Education basics**
 > Where does Krishiv study and what is his current CGPA?
 
-Expects: BITS Pilani, B.E. Mathematics & Computing, CGPA 8.81, graduating 2028
+Expects: BITS Pilani, B.E. Mathematics & Computing, CGPA 8.68, graduating 2028
 
 ---
 
