@@ -12,7 +12,7 @@ Live: https://krishiv-portfolio-p751rj33v-krishiv-mangal-s-projects.vercel.app
 |--------------|---------------------------------------------------------------|
 | Frontend     | React 18 + Vite                                               |
 | Styling      | Tailwind CSS + custom CSS variables (light/dark theme system) |
-| AI / Chat    | Groq API — `llama-3.1-8b-instant`                             |
+| AI / Chat    | Groq API — `openai/gpt-oss-20b`                               |
 | Voice I/O    | Web Speech API (STT) + SpeechSynthesis API (TTS)              |
 | Data layer   | Structured JS object — single source of truth                 |
 | Deployment   | Vercel (CI/CD from GitHub)                                    |
@@ -55,7 +55,7 @@ App (root)
 
 1. All portfolio data is hardcoded into a `SYSTEM_PROMPT` constant in `App.jsx`.
 2. On every user message, the full conversation history (system prompt + all prior turns) is sent to the Groq API.
-3. The model (`llama-3.1-8b-instant`) is instructed to answer **only** from the provided data — no hallucinations, no general knowledge.
+3. The model (`openai/gpt-oss-20b`) is instructed to answer **only** from the provided data — no hallucinations, no general knowledge.
 4. Unknown questions get a graceful fallback pointing visitors to the email address.
 5. Chat history resets each time the chat panel is closed and reopened (stateless sessions, no persistence).
 
@@ -82,11 +82,13 @@ Key guardrails enforced in the prompt:
 
 ### Model choice rationale
 
-`llama-3.1-8b-instant` via Groq was chosen for:
-- **Speed**: sub-500ms median response latency (Groq's LPU hardware)
-- **Quality**: more than sufficient for grounded Q&A over a small, structured context
-- **Cost**: very low token cost for a portfolio use case
-- `max_tokens: 600`, `temperature: 0.55` — keeps answers focused without being robotic
+`openai/gpt-oss-20b` via Groq was chosen for:
+- **Speed**: runs on Groq's LPU hardware at ~1000 tokens/sec — fast enough for real-time chat
+- **Quality**: solid grounded Q&A over a small, structured context, with enough reasoning capability to handle edge cases (off-topic redirects, ambiguous follow-ups) cleanly
+- **Cost**: comfortably within Groq's free tier for portfolio-scale traffic
+- `max_tokens: 600`, `temperature: 0.55`, `reasoning_effort: "low"`, `include_reasoning: false` — keeps answers focused and quick, without leaking the model's internal reasoning into the chat
+
+> Originally built on `llama-3.1-8b-instant`, migrated after Groq deprecated the model (decommissioned Aug 16, 2026). Swap was a single model-string change plus the two reasoning params above — no other architecture changes needed.
 
 ---
 

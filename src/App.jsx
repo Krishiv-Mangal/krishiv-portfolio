@@ -137,13 +137,15 @@ function Chat({ isOpen, onClose, dark }) {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
         body: JSON.stringify({
-          model: "llama-3.1-8b-instant",
+          model: "openai/gpt-oss-20b",
           messages: [
             { role: "system", content: SYSTEM_PROMPT },
             ...updated.map((m) => ({ role: m.role === "assistant" ? "assistant" : "user", content: m.content })),
           ],
           max_tokens: 600,
           temperature: 0.55,
+          reasoning_effort: "low",
+          include_reasoning: false,
         }),
       });
       if (!res.ok) { const e = await res.json(); console.error(e); throw new Error(); }
